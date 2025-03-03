@@ -52,14 +52,29 @@ extern "C" {
 * @{
   */
 
+/**
+ * @brief  Check if the payload length is within the valid range for LPAWUR.
+ * @param  PAYLOAD_LEN Payload length to be checked.
+ * @retval True if the payload length is within the valid range, false otherwise.
+ */
 #define IS_LPAWUR_PAYLOAD_LENGTH(PAYLOAD_LEN) ((PAYLOAD_LEN)>=MINIMUM_LPAWUR_PAYLOAD_LEN && \
                                              (PAYLOAD_LEN)<=MAXIMUM_LPAWUR_PAYLOAD_LEN)
 
+/**
+ * @brief  Check if the wakeup value is valid.
+ * @param  WAKEUP Wakeup value to be checked.
+ * @retval True if the wakeup value is valid, false otherwise.
+ */
 #define IS_WAKEUP(WAKEUP) (((WAKEUP) == WAKEUP_BIT_SYNC) || \
 					((WAKEUP) == WAKEUP_FRAME_SYNC) || \
 					((WAKEUP) == WAKEUP_FRAME_COMPLETE) || \
 					((WAKEUP) == WAKEUP_FRAME_VALID) )
 
+/**
+ * @brief  Check if the EDICAL value is valid.
+ * @param  EDICAL EDICAL value to be checked.
+ * @retval True if the EDICAL value is valid, false otherwise.
+ */
 #define IS_EDICAL(EDICAL) (((EDICAL) == ED_ICAL_VBAT_1_70_TO_2_00) || \
 					((EDICAL) == ED_ICAL_VBAT_2_00_TO_2_25) || \
 					((EDICAL) == ED_ICAL_VBAT_2_25_TO_2_50) || \
@@ -69,6 +84,11 @@ extern "C" {
 					((EDICAL) == ED_ICAL_VBAT_3_25_TO_3_50) || \
 					((EDICAL) == ED_ICAL_VBAT_3_50_TO_3_75) )
 
+/**
+ * @brief  Check if the AGC high level value is valid.
+ * @param  AGC_LEVEL AGC high level value to be checked.
+ * @retval True if the AGC high level value is valid, false otherwise.
+ */
 #define IS_AGC_HIGH_LEVEL(AGC_LEVEL) (((AGC_LEVEL) == AGC_VBAT_0500) || \
 					((AGC_LEVEL) == AGC_VBAT_0575) || \
                                         ((AGC_LEVEL) == AGC_VBAT_0650) || \
@@ -86,14 +106,29 @@ extern "C" {
                                         ((AGC_LEVEL) == AGC_VBAT_1550) || \
                                         ((AGC_LEVEL) == AGC_VBAT_1625) )
 
+/**
+ * @brief  Check if the AGC low level value is valid.
+ * @param  AGC_LEVEL AGC low level value to be checked.
+ * @retval True if the AGC low level value is valid, false otherwise.
+ */
 #define IS_AGC_LOW_LEVEL(AGC_LEVEL) (((AGC_LEVEL) == AGC_LOW_0) || \
                                       ((AGC_LEVEL) == AGC_LOW_1) || \
                                       ((AGC_LEVEL) == AGC_LOW_2) || \
                                       ((AGC_LEVEL) == AGC_LOW_3) )
-                                          
+
+/**
+ * @brief  Check if the AGC hold mode value is valid.
+ * @param  HOLD_MODE AGC hold mode value to be checked.
+ * @retval True if the AGC hold mode value is valid, false otherwise.
+ */
 #define IS_AGC_HOLD_MODE(HOLD_MODE) (((HOLD_MODE) == AGC_HOLD_AFTER_PREAMBLE) || \
 					((HOLD_MODE) == AGC_HOLD_AFTER_SYNC) )
 
+/**
+ * @brief  Check if the AGC mode value is valid.
+ * @param  AGC_MODE AGC mode value to be checked.
+ * @retval True if the AGC mode value is valid, false otherwise.
+ */
 #define IS_AGC_MODE(AGC_MODE) (((AGC_MODE) == AGC_MODE_MAX) || \
 					((AGC_MODE) == AGC_MODE_OFF) || \
 					((AGC_MODE) == AGC_MODE_ON) || \

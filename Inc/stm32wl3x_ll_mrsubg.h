@@ -32,11 +32,11 @@ extern "C" {
   * @{
   */
 
-/** @addtogroup MRSUBG
+/** @defgroup MRSUBG_LL MRSUBG
   * @{
   */
 
-/** @defgroup MRSUBG_Private_Constants MRSUBG Private Constants
+/** @defgroup MRSUBG_LL_Private_Constants MRSUBG Private Constants
   * @{
   */
 #if defined(IS_169MHZ)
@@ -69,7 +69,7 @@ extern "C" {
   * @}
   */
 
-/** @defgroup MRSUBG_Exported_Macros MRSUBG Exported Macros
+/** @defgroup MRSUBG_LL_Exported_Macros MRSUBG Exported Macros
 * @{
   */
 
@@ -106,7 +106,7 @@ extern "C" {
   */
 
 
-/** @defgroup MRSUBG_Exported_Types MRSUBG Exported Types
+/** @defgroup MRSUBG_LL_Exported_Types MRSUBG Exported Types
   * @{
   */
 /**
@@ -204,7 +204,7 @@ typedef enum{
   RX_DIRECT_BUFFERS     = 0x01, /* Full bit stream is stored into the RAM buffers. */
   RX_DIRECT_GPIO        = 0x02, /* Full bit stream is provided serially through the RX DATA GPIO */
   RX_IQ_SAMPLING        = 0x03, /* Raw I/Q sampling taken at the output of the Channel filter inside the demodulator are stored in RAM. */
-  RX_FREQDETEC_SAMPLING = 0x04, /* Raw data taken at the output of the frequency detector inside the demodulator (detection of the instantaneous frequency changes) are stored in RAM.*/
+  RX_FREQDETEC_SAMPLING = 0x04, /* Raw data taken at the output of the frequency detector inside the demodulator (detection of the instantaneous frequency changes) are stored in RAM. */
   RX_SOFTBIT_SAMPLING   = 0x05  /* Raw data taken at the output of the post-filter inside the demodulator (soft bits before the 0/1 detection) are stored in RAM. */
 } MRSubGRXMode;
 
@@ -379,7 +379,12 @@ typedef struct {
   MR_SUBG_GLOB_STATIC_TypeDef StaticConfigReg;
 } MRSubG_Sequencer_GlobalConfiguration;
 
-/** @defgroup MRSUBG_Exported_Functions MRSUBG Exported Functions
+/**
+  * @}
+  */
+  
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup MRSUBG_LL_Exported_Functions MRSUBG Exported Functions
   * @{
   */
 
@@ -993,6 +998,77 @@ __STATIC_INLINE uint8_t LL_MRSubG_GetChFlt_E(void){
   return READ_REG_FIELD(MR_SUBG_GLOB_DYNAMIC->MOD1_CONFIG, MR_SUBG_GLOB_DYNAMIC_MOD1_CONFIG_CHFLT_E);
 }
 
+/**
+ * @brief  Return the RSSI_LEVEL_ON_SYNC register.
+ * @retval The RSSI Level On Sync value.
+ */
+__STATIC_INLINE uint16_t LL_MRSubG_GetRssiLevelOnSync(void){
+  return READ_REG(MR_SUBG_GLOB_STATUS->RX_INDICATOR) & MR_SUBG_GLOB_STATUS_RX_INDICATOR_RSSI_LEVEL_ON_SYNC;
+}
+
+/**
+ * @brief  Set the MRSUBG RSSI_FLT register.
+ * @retval The value to store for the register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetRSSIFilter(uint32_t rssiFilter){
+  WRITE_REG(MR_SUBG_RADIO->RSSI_FLT, rssiFilter);
+}
+
+/**
+ * @brief  Set the RSSI threshold register.
+ * @retval The value to store for the signal detect threshold.
+ */
+__STATIC_INLINE void LL_MRSubG_SetRssiThresholdRegister(uint16_t rssiValReg){
+  MODIFY_REG_FIELD(MR_SUBG_GLOB_STATIC->AS_QI_CTRL, MR_SUBG_GLOB_STATIC_AS_QI_CTRL_RSSI_THR, rssiValReg);
+}
+
+/**
+ * @brief  Set the MRSUBG Clock Recovery 0 register.
+ * @retval The value to store for the register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetClkRecCtrl0(uint32_t clkRec){
+  WRITE_REG(MR_SUBG_RADIO->CLKREC_CTRL0, clkRec);
+}
+
+/**
+ * @brief  Set the MRSUBG Clock Recovery 1 register.
+ * @retval The value to store for the register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetClkRecCtrl1(uint32_t clkRec){
+  WRITE_REG(MR_SUBG_RADIO->CLKREC_CTRL1, clkRec);
+}
+
+/**
+ * @brief  Set the MRSUBG AFC0 register.
+ * @retval The value to store for the AFC0_CONFIG register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetAFC0(uint32_t afcCfg){
+  WRITE_REG(MR_SUBG_RADIO->AFC0_CONFIG, afcCfg);
+}
+
+/**
+ * @brief  Set the MRSUBG AFC1 register.
+ * @retval The value to store for the AFC1_CONFIG register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetAFC1(uint32_t afcCfg){
+  WRITE_REG(MR_SUBG_RADIO->AFC1_CONFIG, afcCfg);
+}
+
+/**
+ * @brief  Set the MRSUBG AFC2 register.
+ * @retval The value to store for the AFC2_CONFIG register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetAFC2(uint32_t afcCfg){
+  WRITE_REG(MR_SUBG_RADIO->AFC2_CONFIG, afcCfg);
+}
+
+/**
+ * @brief  Set the MRSUBG AFC3 register.
+ * @retval The value to store for the AFC3_CONFIG register.
+ */
+__STATIC_INLINE void LL_MRSubG_SetAFC3(uint32_t afcCfg){
+  WRITE_REG(MR_SUBG_RADIO->AFC3_CONFIG, afcCfg);
+}
 
 /**
  @verbatim

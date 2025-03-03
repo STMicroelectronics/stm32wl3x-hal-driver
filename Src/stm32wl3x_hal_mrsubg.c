@@ -34,7 +34,6 @@
   * @{
   */
 #define MAX_DBM       0x51
-#define GAIN_RX_CHAIN 64
 
 /**
   * @}
@@ -331,7 +330,7 @@ static uint8_t MRSubG_GetAllowedMaxOutputPower(MRSubG_PA_DRVMode paDrvMode){
     retPwr = 10;
     break;
   case PA_DRV_TX_HP:
-    retPwr = 14;
+    retPwr = 16;
     break;
   case PA_DRV_TX_TX_HP:
     retPwr = 18; /* Max allowed power without PA_DEGEN_ON */
@@ -758,14 +757,13 @@ MRSubGModSelect HAL_MRSubG_GetModulation(void)
 }
 
 /**
- * @brief  Returns the RSSI value.
+ * @brief  Return RSSI value in dBm from content of RSSI_LEVEL_ON_SYNC field.
  * @retval int32_t RSSI value.
  */
 int32_t HAL_MRSubG_GetRssidBm(void)
 {
-  /* Return RSSI value in dBm from content of RSSI_LEVEL_ON_SYNC field */
-  uint16_t rssiReg = READ_REG(MR_SUBG_GLOB_STATUS->RX_INDICATOR) & MR_SUBG_GLOB_STATUS_RX_INDICATOR_RSSI_LEVEL_ON_SYNC;
-  return MRSubG_ConvertRssiToDbm(rssiReg);
+  uint16_t rssiReg = LL_MRSubG_GetRssiLevelOnSync();
+  return __HAL_MRSUBG_CONVERT_RSSI_TO_DBM(rssiReg);
 }
 
 /**
@@ -776,7 +774,7 @@ int32_t HAL_MRSubG_GetRssidBm(void)
  */
 void HAL_MRSubG_SetRSSIThreshold(int16_t rssiTh){
   uint16_t rssiValReg = 2*(rssiTh+(96+GAIN_RX_CHAIN));
-  MODIFY_REG_FIELD(MR_SUBG_GLOB_STATIC->AS_QI_CTRL, MR_SUBG_GLOB_STATIC_AS_QI_CTRL_RSSI_THR, rssiValReg);
+  LL_MRSubG_SetRssiThresholdRegister(rssiValReg);  
 }
 
 /**

@@ -68,18 +68,76 @@ drivers)</li>
 <section id="update-history" class="col-sm-12 col-lg-8">
 <h1>Update History</h1>
 <div class="collapse">
-<input type="checkbox" id="collapse-section1" checked aria-hidden="true">
-<label for="collapse-section1" checked aria-hidden="true"><strong>V1.0.0
-/ 30-October-2024</strong></label>
+<input type="checkbox" id="collapse-section2" checked aria-hidden="true">
+<label for="collapse-section2" checked aria-hidden="true"><strong>V1.1.0
+/ 5-February-2025</strong></label>
 <div>
 <h2 id="main-changes">Main Changes</h2>
-<h3
-id="first-official-release-of-hal-and-ll-drivers-for-stm32wl33-devices">First
-Official Release of <strong>HAL and LL drivers</strong> for
-<strong>STM32WL33</strong> devices</h3>
+<h3 id="release-of-hal-and-ll-drivers-for-stm32wl3x-devices">Release of
+<strong>HAL and LL drivers</strong> for <strong>STM32WL3x</strong>
+devices</h3>
+Improved MRSUBG LL and HAL drivers with new APIs and macros:
+<ul>
+<li>
+<pre><code>__HAL_MRSUBG_GET_DATABUFFER_COUNT()</code></pre>
+</li>
+<li>
+<pre><code>__HAL_MRSUBG_SET_PQI_THRESHOLD(__THRVAL__)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_GetRssiLevelOnSync(void)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetRSSIFilter(uint32_t rssiFilter)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetClkRecCtrl0(uint32_t clkRec)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetClkRecCtrl1(uint32_t clkRec)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetAFC0(uint32_t afcCfg)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetAFC1(uint32_t afcCfg)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetAFC2(uint32_t afcCfg)</code></pre>
+</li>
+<li>
+<pre><code>LL_MRSubG_SetAFC3(uint32_t afcCfg)</code></pre>
+</li>
+</ul>
+<ul>
+<li><strong>HAL ADC</strong> driver
+<ul>
+<li>Fix rmtoll doxygen comment in LL_ADC_GetCalibPointOffset()</li>
+</ul></li>
+<li><strong>HAL UART</strong> driver
+<ul>
+<li>Corrections in CHM/PDF rendering for HAL_UART</li>
+<li>Provide accurate position in RxEventCallback when ReceptionToIdle
+mode is used with DMA, when UART and DMA interrupts process is
+delayed</li>
+<li>Correct references to HAL_UARTEx_WakeupCallback and to
+HAL_UART_WAKEUP_CB_ID define, according to serie capabilities</li>
+</ul></li>
+<li><strong>LL LPUART</strong> driver
+<ul>
+<li>Solve Coverity out-of-bound memory access warning in use of
+LPUART_PRESCALER_TAB array</li>
+</ul></li>
+<li><strong>LL USART</strong> driver
+<ul>
+<li>Solve Coverity out-of-bound memory access warning in use of
+USART_PRESCALER_TAB array</li>
+</ul></li>
+</ul>
+<p>Check the code documentation for further details.</p>
 <h2 id="contents">Contents</h2>
 <ul>
-<li>First Official Release of HAL/LL drivers
+<li>Release of HAL/LL drivers
 <ul>
 <li><p><strong>HAL</strong>: COMP, CORTEX, CRC, CRYP, DMA, FLASH, GPIO,
 I2C, IRDA, IWDG, LCD, LPAWUR, MRSUBG, PWR, RCC, RNG, RTC, SMARTCARD,
@@ -90,7 +148,8 @@ LPAWUR, MRSUBG, PWR, RCC, RNG, RTC, SPI, TIM, USART, UTILS</p></li>
 </ul>
 <h2 id="supported-devices-and-boards">Supported Devices and boards</h2>
 <ul>
-<li>NUCLEO-WL33CC board</li>
+<li>NUCLEO-WL33CC1 board</li>
+<li>NUCLEO-WL33CC2 board</li>
 </ul>
 <h2 id="backward-compatibility">Backward compatibility</h2>
 <ul>
@@ -105,6 +164,50 @@ LPAWUR, MRSUBG, PWR, RCC, RNG, RTC, SPI, TIM, USART, UTILS</p></li>
 <li>None</li>
 </ul>
 <h2 id="notes">Notes</h2>
+<ul>
+<li>None</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section1" aria-hidden="true">
+<label for="collapse-section1" checked aria-hidden="true"><strong>V1.0.0
+/ 30-October-2024</strong></label>
+<div>
+<h2 id="main-changes-1">Main Changes</h2>
+<h3
+id="first-official-release-of-hal-and-ll-drivers-for-stm32wl33-devices">First
+Official Release of <strong>HAL and LL drivers</strong> for
+<strong>STM32WL33</strong> devices</h3>
+<h2 id="contents-1">Contents</h2>
+<ul>
+<li>First Official Release of HAL/LL drivers
+<ul>
+<li><p><strong>HAL</strong>: COMP, CORTEX, CRC, CRYP, DMA, FLASH, GPIO,
+I2C, IRDA, IWDG, LCD, LPAWUR, MRSUBG, PWR, RCC, RNG, RTC, SMARTCARD,
+SPI, TIM, UART, USART</p></li>
+<li><p><strong>LL</strong>: COMP, CRC, DMA, GPIO, I2C, LCSC, LPUART,
+LPAWUR, MRSUBG, PWR, RCC, RNG, RTC, SPI, TIM, USART, UTILS</p></li>
+</ul></li>
+</ul>
+<h2 id="supported-devices-and-boards-1">Supported Devices and
+boards</h2>
+<ul>
+<li>NUCLEO-WL33CC board</li>
+</ul>
+<h2 id="backward-compatibility-1">Backward compatibility</h2>
+<ul>
+<li>Not applicable</li>
+</ul>
+<h2 id="known-limitations-1">Known Limitations</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="dependencies-1">Dependencies</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="notes-1">Notes</h2>
 <ul>
 <li>None</li>
 </ul>

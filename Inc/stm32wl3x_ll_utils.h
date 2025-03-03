@@ -277,10 +277,10 @@ void        LL_mDelay(uint32_t Delay);
 
 void LL_SetSystemCoreClock(uint32_t HCLKFrequency);
 uint32_t LL_GetSystemCoreClock(void);
-#if defined(STM32WL33)
+#if defined(STM32WL3XX)
 void LL_SetXTALFreq(uint32_t freq);
 uint32_t LL_GetXTALFreq(void);
-#endif
+#endif /* STM32WL3XX */
 
 /**
   * @}

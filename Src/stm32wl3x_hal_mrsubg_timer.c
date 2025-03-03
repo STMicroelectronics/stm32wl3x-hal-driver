@@ -81,6 +81,7 @@ typedef struct {
   uint64_t last_system_time; /** Last System Time */
   uint64_t last_calibration_time; /** Absolute system time when last calibration was performed */
   uint8_t  calibration_in_progress;  /*!< Flag to indicate that a periodic calibration has been started */
+  uint8_t  close_expiration;  /*!< Flag to indicate that a timer is about to expire */
   uint64_t periodicCalibrationInterval; /** Calibration Interval in system time unit (us) */
   uint8_t  periodic_calibration; /** Tells whether periodic hardware calibration is needed or not, i.e. LSO speed varies with temperature, etc. */
 } MRSUBG_TIMER_ContextTypeDef;
@@ -102,7 +103,7 @@ typedef struct {
 #define FIVE_SECONDS 5000000
 /* Assumed slow clock working frequency to be at 32.768 kHz */
 #define SLOW_CLOCK_WORKING_FREQ 32768
-/* Max attemt number for SCM to exit transitory phase and reach working frequency */
+/* Max attempt number for SCM to exit transitory phase and reach working frequency */
 #define MAX_SCM_DELAY_COUNT 10
 /* ms to wait between SCM reads during transitory phase */
 #define SCM_DELAY_MS 5
@@ -273,12 +274,10 @@ void HAL_MRSUBG_TIMER_Init(MRSUBG_TIMER_InitTypeDef *MRSUBG_TIMER_InitStruct)
 void HAL_MRSUBG_TIMER_Tick(void)
 {
   uint8_t expired = 0;
-  static uint8_t expired_timer_recovery;
 
   /* Check for expired timers */  
   while (DIFF8(MRSUBG_TIMER_Context.expired_count, MRSUBG_TIMER_Context.served_count)) 
   {
-    expired_timer_recovery = 0;
     VTIMER_HandleType *expiredList, *curr;
     uint8_t to_be_served = DIFF8(MRSUBG_TIMER_Context.expired_count, MRSUBG_TIMER_Context.served_count);
     
@@ -305,8 +304,12 @@ void HAL_MRSUBG_TIMER_Tick(void)
 
     if (expiredList == NULL)
     {
-      /* Set the recovery flag to handle an expired timer later, since its not yet percived as expired by software checks */
-      expired_timer_recovery = 1;
+      /* Set the close_expiration flag to handle an expired timer later, since its not yet percived as expired by software checks */
+      MRSUBG_TIMER_Context.close_expiration = 1;
+    }
+    else
+    {
+      MRSUBG_TIMER_Context.close_expiration = 0;
     }
     MRSUBG_TIMER_Context.served_count += to_be_served;
   }
@@ -326,17 +329,15 @@ void HAL_MRSUBG_TIMER_Tick(void)
     }
   }
   /* Make sure no expired timer was left unarmed due to time missalignment */
-  if (expired_timer_recovery)
+  if (MRSUBG_TIMER_Context.close_expiration)
   {
     if((MRSUBG_TIMER_Context.calibrationTimer.expiryTime) < HAL_MRSUBG_TIMER_GetCurrentSysTime())
     {
       INCREMENT_EXPIRE_COUNT;
-      expired_timer_recovery = 0;
     }
     else if ((MRSUBG_TIMER_Context.rootNode->expiryTime) < HAL_MRSUBG_TIMER_GetCurrentSysTime())
     {
       INCREMENT_EXPIRE_COUNT;
-      expired_timer_recovery = 0;
     }
   }
 }
@@ -349,7 +350,6 @@ PowerSaveLevels HAL_MRSUBG_TIMER_PowerSaveLevelCheck(void)
 {
   uint32_t nextRadioActivity;
   uint8_t timerState;
-  uint64_t current_time;
   uint32_t hs_startup_machine_time;
   PowerSaveLevels level;
 
@@ -360,7 +360,6 @@ PowerSaveLevels HAL_MRSUBG_TIMER_PowerSaveLevelCheck(void)
   
   level = POWER_SAVE_LEVEL_DEEPSTOP_NOTIMER;
 
-  current_time = HAL_MRSUBG_TIMER_GetCurrentSysTime();
   timerState = HAL_MRSUBG_TIMER_GetRadioTimerValue(&nextRadioActivity);
   
   /*Wakeup timer are programmed only through the timer module*/
@@ -377,9 +376,11 @@ PowerSaveLevels HAL_MRSUBG_TIMER_PowerSaveLevelCheck(void)
 
   if(MRSUBG_TIMER_Context.rootNode != NULL && MRSUBG_TIMER_Context.rootNode->active)
   {
-    if(MRSUBG_TIMER_Context.rootNode->expiryTime < (current_time + LOW_POWER_THR_STU + MRSUBG_TIMER_Context.hs_startup_time))
+    /* Disable power save if a timer is about to expire */
+    if(((MRSUBG_TIMER_Context.rootNode->expiryTime - HAL_MRSUBG_TIMER_GetCurrentSysTime()) < (LOW_POWER_THR_STU + MRSUBG_TIMER_Context.hs_startup_time)*3)|| (MRSUBG_TIMER_Context.close_expiration !=0))
     {
-      return POWER_SAVE_LEVEL_SLEEP;
+      MRSUBG_TIMER_Context.close_expiration = 1;
+      return POWER_SAVE_LEVEL_DISABLED;
     }
     
     if(level == POWER_SAVE_LEVEL_DEEPSTOP_NOTIMER)
@@ -530,14 +531,12 @@ uint64_t HAL_MRSUBG_TIMER_ExpiryTime(VTIMER_HandleType *timerHandle)
  */
 void HAL_MRSUBG_TIMER_TimeoutCallback(void)
 {
-  volatile uint32_t status;
-  
   /* Disable host timer */
   LL_MRSUBG_TIMER_DisableCPUWakeupTimer(MR_SUBG_GLOB_RETAINED);
   INCREMENT_EXPIRE_COUNT_ISR;
   /* Clear the interrupt */
   LL_MRSUBG_TIMER_ClearFlag_CPUWakeup(MR_SUBG_GLOB_MISC);
-  status = LL_MRSUBG_TIMER_IsActiveFlag_CPUWakeup(MR_SUBG_GLOB_MISC);
+  LL_MRSUBG_TIMER_IsActiveFlag_CPUWakeup(MR_SUBG_GLOB_MISC);
 }
 
 /**
@@ -646,7 +645,7 @@ static void _update_system_time(void)
         /* When accounting for slow clock frequency oscillations over time:
          * In wrap around conditions of the HW timer, timer_max_value
          * added to the cumulative time needs to be calculated using
-         * last_interpolated_freq, used untill this calibration cycle.
+         * last_interpolated_freq, used until this calibration cycle.
          */
         MRSUBG_TIMER_Context.cumulative_time += (((uint64_t)TIMER_MAX_VALUE*1000000ull)/MRSUBG_TIMER_Context.last_interpolated_freq);
      }
@@ -661,7 +660,7 @@ static void _update_system_time(void)
   MRSUBG_TIMER_Context.last_interpolated_freq = MRSUBG_TIMER_Context.interpolated_freq;
   /* When accounting for slow clock frequency oscillations over time:
    * periodicCalibrationInterval (used as timeout for the next calibration cycle)
-   * has to be calculated dynamicly using the current frequency value.
+   * has to be calculated dynamically using the current frequency value.
    */
   MRSUBG_TIMER_Context.periodicCalibrationInterval = _machinetime_to_us(MRSUBG_TIMER_Context.calibration_machine_interval);
 }

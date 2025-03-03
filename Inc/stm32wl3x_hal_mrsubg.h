@@ -39,7 +39,8 @@ extern "C" {
 /** @defgroup MRSUBG_Private_Constants MRSUBG Private Constants
   * @{
   */
-
+#define GAIN_RX_CHAIN 64
+  
 #define WMBUS_PREAMBLE_LEN_S1S2LONGHEADER           (uint16_t)279
 #define WMBUS_PREAMBLE_LEN_S1MS2T2OTHERTOMETER      (uint16_t)15
 #define WMBUS_PREAMBLE_LEN_T1T2METERTOOTHER         (uint16_t)19
@@ -70,42 +71,189 @@ extern "C" {
   * @{
   */
 
+/**
+  * @brief Send a specific command to the STM32WL3.
+  * @param __CMD_NAME__ code of the command to send.
+  * @retval None.
+  */
 #define __HAL_MRSUBG_STROBE_CMD(__CMD_NAME__)           LL_MRSubG_StrobeCommand(__CMD_NAME__)
 
+/**
+  * @brief Sets the RX_MODE for the MRSUBG.
+  * @param __MODE__ the rx mode
+  *        This parameter can be any of the following values:
+  *            @arg @ref RX_NORMAL              Only payload is stored into the RAM buffers. CRC and packet length are readable in dedicated status registers
+  *            @arg @ref RX_DIRECT_BUFFERS      Full bit stream is stored into the RAM buffers.
+  *            @arg @ref RX_DIRECT_GPIO         Full bit stream is provided serially through the RX DATA GPIO.
+  *            @arg @ref RX_IQ_SAMPLING         Raw I/Q sampling taken at the output of the Channel filter inside the demodulator are stored in RAM.
+  *            @arg @ref RX_FREQDETEC_SAMPLING  Raw data taken at the output of the frequency detector inside the demodulator (detection of the instantaneous frequency changes) are stored in RAM.
+  *            @arg @ref RX_SOFTBIT_SAMPLING    Raw data taken at the output of the post-filter inside the demodulator (soft bits before the 0/1 detection) are stored in RAM.
+  * @retval None.
+  */
 #define __HAL_MRSUBG_SET_RX_MODE(__MODE__)              LL_MRSubG_SetRXMode(__MODE__)
+
+/**
+  * @brief Sets the TX_MODE for the MRSUBG.
+  * @param __MODE__ the tx mode
+  *        This parameter can be any of the following values:
+  *            @arg @ref TX_NORMAL          Only payload is provided through RAM buffers Rest of the frame built from configuration registers (PREAMBLE, SYNC, CRC...).
+  *            @arg @ref TX_DIRECT_BUFFERS  Full bit stream (including PREAMBLE, SYNC, CRC...) to be provided through RAM buffers.
+  *            @arg @ref TX_DIRECT_GPIO     Full bit stream (including PREAMBLE, SYNC, CRC...) to be provided serially through the TX DATA GPIO.
+  *            @arg @ref TX_PN              Internal PN generator send a polynomial bit stream on the antenna.
+  * @retval None.
+  */
 #define __HAL_MRSUBG_SET_TX_MODE(__MODE__)              LL_MRSubG_SetTXMode(__MODE__)
 
+/**
+  * @brief Set the PCKTLEN field of the PCKTLEN_CONFIG register.
+  * @param __P_LEN__ payload length in bytes.
+  * @retval None.
+  */
 #define __HAL_MRSUBG_SET_PKT_LEN(__P_LEN__)             LL_MRSUBG_SetPacketLength(__P_LEN__)
 
+/**
+  * @brief Set global configuration table for sequencer hardware.
+  * @param __ARG__ Pointer to the global configuration table struct.
+  * @retval None.
+  */
 #define __HAL_MRSUBG_SEQ_SET_GLOBAL_CONFIG(__ARG__)     LL_MRSubG_Sequencer_SetGlobalConfiguration(__ARG__)
+
+/**
+  * @brief Trigger sequencer, i.e., launch sequence of actions.  
+  * @retval None.
+  */
 #define __HAL_MRSUBG_SEQ_TRIGGER()                      LL_MRSubG_Sequencer_Trigger()
 
+/**
+  * @brief Set the size for the data buffer.
+  * @param __SIZE__ the size of the data buffer.
+  * @retval None.
+  */
 #define __HAL_MRSUBG_SET_DATABUFFER_SIZE(__SIZE__)      MODIFY_REG_FIELD(MR_SUBG_GLOB_STATIC->DATABUFFER_SIZE, MR_SUBG_GLOB_STATIC_DATABUFFER_SIZE_DATABUFFER_SIZE, __SIZE__)
+
+/**
+ * @brief  Get the size of the data buffer.
+ * @retval The size of the data buffer.
+ */
 #define __HAL_MRSUBG_GET_DATABUFFER_SIZE()              READ_REG(MR_SUBG_GLOB_STATIC->DATABUFFER_SIZE)  
+
+/**
+ * @brief  Get the number of bytes used in the last used DATA BUFFER.
+ * @retval The number of bytes used in the last used DATA BUFFER.
+ */   
+#define __HAL_MRSUBG_GET_DATABUFFER_COUNT()             READ_REG_FIELD(MR_SUBG_GLOB_STATUS->DATABUFFER_INFO, MR_SUBG_GLOB_STATUS_DATABUFFER_INFO_CURRENT_DATABUFFER_COUNT);   
+   
+/**
+ * @brief  Set the pointer for data buffer 0.
+ * @param  __ARG__ Pointer to be set for data buffer 0.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_DATABUFFER0_POINTER(__ARG__)   WRITE_REG(MR_SUBG_GLOB_STATIC->DATABUFFER0_PTR, __ARG__)
+
+/**
+ * @brief  Set the pointer for data buffer 1.
+ * @param  __ARG__ Pointer to be set for data buffer 1.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_DATABUFFER1_POINTER(__ARG__)   WRITE_REG(MR_SUBG_GLOB_STATIC->DATABUFFER1_PTR, __ARG__)
 
+/**
+ * @brief  Get the RX indicator status.
+ * @retval The RX indicator status.
+ */
 #define __HAL_MRSUBG_GET_RX_INDICATOR()                 READ_REG(MR_SUBG_GLOB_STATUS->RX_INDICATOR)
 
+/**
+ * @brief  Enable RF sequence IRQ with a given flag.
+ * @param  __FLAG__ Flag to enable RF sequence IRQ.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_RFSEQ_IRQ_ENABLE(__FLAG__)     WRITE_REG(MR_SUBG_GLOB_DYNAMIC->RFSEQ_IRQ_ENABLE, __FLAG__)
-#define __HAL_MRSUBG_GET_RFSEQ_IRQ_STATUS()             READ_REG(MR_SUBG_GLOB_STATUS->RFSEQ_IRQ_STATUS)
-#define __HAL_MRSUBG_CLEAR_RFSEQ_IRQ_FLAG(__FLAG__)     WRITE_REG(MR_SUBG_GLOB_STATUS->RFSEQ_IRQ_STATUS, __FLAG__)
-    
-#define __HAL_MRSUBG_GET_RFSEQ_STATUS_DETAIL()          READ_REG(MR_SUBG_GLOB_STATUS->RFSEQ_STATUS_DETAIL)
-#define __HAL_MRSUBG_SET_RFSEQ_STATUS_DETAIL(__ARG__)   WRITE_REG(MR_SUBG_GLOB_STATUS->RFSEQ_STATUS_DETAIL, __ARG__)        
 
+/**
+ * @brief  Get the RF sequence IRQ status.
+ * @retval The RF sequence IRQ status.
+ */
+#define __HAL_MRSUBG_GET_RFSEQ_IRQ_STATUS()             READ_REG(MR_SUBG_GLOB_STATUS->RFSEQ_IRQ_STATUS)
+
+/**
+ * @brief  Clear the RF sequence IRQ flag with a given flag.
+ * @param  __FLAG__ Flag to clear RF sequence IRQ.
+ * @retval None.
+ */
+#define __HAL_MRSUBG_CLEAR_RFSEQ_IRQ_FLAG(__FLAG__)     WRITE_REG(MR_SUBG_GLOB_STATUS->RFSEQ_IRQ_STATUS, __FLAG__)
+
+/**
+ * @brief  Get detailed RF sequence status.
+ * @retval The detailed RF sequence status.
+ */
+#define __HAL_MRSUBG_GET_RFSEQ_STATUS_DETAIL()          READ_REG(MR_SUBG_GLOB_STATUS->RFSEQ_STATUS_DETAIL)
+
+/**
+ * @brief  Set detailed RF sequence status with a given argument.
+ * @param  __ARG__ Argument to set detailed RF sequence status.
+ * @retval None.
+ */
+#define __HAL_MRSUBG_SET_RFSEQ_STATUS_DETAIL(__ARG__)   WRITE_REG(MR_SUBG_GLOB_STATUS->RFSEQ_STATUS_DETAIL, __ARG__)
+
+/**
+ * @brief  Set the RX timeout with a given timeout value.
+ * @param  __TIMEOUT__ Timeout value to set for RX.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_RX_TIMEOUT(__TIMEOUT__)        MODIFY_REG_FIELD(MR_SUBG_GLOB_DYNAMIC->RX_TIMER, MR_SUBG_GLOB_DYNAMIC_RX_TIMER_RX_TIMEOUT, __TIMEOUT__)
-    
+
+/**
+ * @brief  Set the fast RX timeout with a given timeout value.
+ * @param  __TIMEOUT__ Timeout value to set for fast RX.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_FAST_RX_TIMEOUT(__TIMEOUT__)   MODIFY_REG_FIELD(MR_SUBG_GLOB_DYNAMIC->FAST_RX_TIMER, MR_SUBG_GLOB_DYNAMIC_FAST_RX_TIMER_FAST_RX_TIMEOUT, __TIMEOUT__)
-    
+
+/**
+ * @brief  Set the wakeup offset with a given offset value.
+ * @param  __OFFSET__ Offset value to set for wakeup.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_WAKEUP_OFFSET(__OFFSET__)      MODIFY_REG_FIELD(MR_SUBG_GLOB_RETAINED->WAKEUP_CTRL, MR_SUBG_GLOB_RETAINED_WAKEUP_CTRL_SOC_WAKEUP_OFFSET, __OFFSET__)
 
+/**
+ * @brief  Enable CS blanking.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_SET_CS_BLANKING()                  SET_BIT(MR_SUBG_GLOB_STATIC->AS_QI_CTRL, MR_SUBG_GLOB_STATIC_AS_QI_CTRL_AS_CS_BLANKING)
+
+/**
+ * @brief  Clear CS blanking.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_CLEAR_CS_BLANKING()                CLEAR_BIT(MR_SUBG_GLOB_STATIC->AS_QI_CTRL, MR_SUBG_GLOB_STATIC_AS_QI_CTRL_AS_CS_BLANKING)
 
+/**
+ * @brief  Set the PQI threshold with a given threshold value.
+ * @param  __THRVAL__ The threshold level.
+ * @retval None.
+ */  
+#define __HAL_MRSUBG_SET_PQI_THRESHOLD(__THRVAL__)      MODIFY_REG_FIELD(MR_SUBG_GLOB_STATIC->AS_QI_CTRL, MR_SUBG_GLOB_STATIC_AS_QI_CTRL_PQI_THR, __THRVAL__)
+  
+/**
+ * @brief  Enable WMBUS and SQI mask.
+ * @retval None.
+ */
 #define __HAL_MRSUBG_WMBUS_ENABLE_AND_SQI_MASK()        {CLEAR_BIT(MR_SUBG_GLOB_DYNAMIC->RX_TIMER, MR_SUBG_GLOB_DYNAMIC_RX_TIMER_RX_OR_nAND_SELECT); SET_BIT(MR_SUBG_GLOB_DYNAMIC->RX_TIMER, MR_SUBG_GLOB_DYNAMIC_RX_TIMER_RX_SQI_TIMEOUT_MASK);}
 
+/**
+ * @brief  Get the IF offset digital value.
+ * @retval The IF offset digital value.
+ */
 #define __HAL_MRSUBG_GET_IF_OFFSET_DIG()                READ_REG_FIELD(MR_SUBG_GLOB_STATIC->IF_CTRL, MR_SUBG_GLOB_STATIC_IF_CTRL_IF_OFFSET_DIG)
+
+/**
+* @brief  Get the RSSI level in dBm.
+* @retval The RSSI level to convert.
+*/
+#define __HAL_MRSUBG_CONVERT_RSSI_TO_DBM(__VALUE__)       (__VALUE__/2)-(96+GAIN_RX_CHAIN)
+   
   /**
   * @}
   */
@@ -190,7 +338,7 @@ typedef struct {
   uint32_t          lFreqDev;           /*!< Specifies the frequency deviation expressed in Hz. */
   uint32_t          lBandwidth;         /*!< Specifies the channel filter bandwidth expressed in Hz. */
   uint8_t           dsssExp;            /*!< Specifies the DSSS spreading exponent. Use 0 to disable DSSS. */
-  uint8_t           outputPower;        /*!< PA value to write expressed in dBm. */  
+  int8_t           outputPower;         /*!< PA value to write expressed in dBm. */  
   MRSubG_PA_DRVMode PADrvMode;          /*!< PA drive mode. */  
 } SMRSubGConfig;
 

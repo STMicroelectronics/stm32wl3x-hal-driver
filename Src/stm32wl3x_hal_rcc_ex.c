@@ -41,7 +41,7 @@
   * @{
   */
 
-#if defined(STM32WL33)
+#if defined(STM32WL3XX)
 #define __LSCO1_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
 #define LSCO1_GPIO_PORT        GPIOA
 #define LSCO1_PIN              GPIO_PIN_4
@@ -54,7 +54,7 @@
 #define LSCO2_GPIO_AF          GPIO_AF0_LCO
 
 
-#if defined(STM32WL33)
+#if defined(STM32WL3XX)
 #define __LSCO3_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
 #define LSCO3_GPIO_PORT        GPIOB
 #define LSCO3_PIN              GPIO_PIN_12

@@ -30,17 +30,6 @@
 
 #ifdef HAL_LPAWUR_MODULE_ENABLED
 
-/** @defgroup LPAWUR_Private_Constants LPAWUR Private Constants
-  * @{
-  */
-#define MAX_DBM		0x51
-#define GAIN_RX_CHAIN   64
-
-/**
-  * @}
-  */
-
-
 /** @defgroup LPAWUR_Private_Macros LPAWUR Private Macros
   * @{
   */

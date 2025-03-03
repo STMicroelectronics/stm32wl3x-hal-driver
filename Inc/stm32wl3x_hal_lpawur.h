@@ -38,6 +38,11 @@ extern "C" {
 /** @defgroup LPAWUR_Exported_Macros LPAWUR Exported Macros
   * @{
   */  
+  
+/**
+ * @brief  Set the frame sync configuration for LPAWUR.
+ * @param  __VAL__ Value to be set for the frame sync configuration.
+ */
 #define __HAL_LPAWUR_SET_FRAME_SYNC_CONFIG(__VAL__)           WRITE_REG(LPAWUR->FRAME_SYNC_CONFIG, __VAL__);
 
   /**

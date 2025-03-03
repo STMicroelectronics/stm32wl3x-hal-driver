@@ -52,7 +52,7 @@ extern "C" {
  *
  */
 
-#if defined(STM32WL33)
+#if defined(STM32WL3XX)
 /**
   * @brief   AF 0 selection
   */
@@ -119,7 +119,7 @@ extern "C" {
 
 #define IS_GPIO_AF(AF)         ((AF) <= (uint8_t)0x06)
    
-#endif /* STM32WL33 */
+#endif /* STM32WL3XX */
    
 
 /**

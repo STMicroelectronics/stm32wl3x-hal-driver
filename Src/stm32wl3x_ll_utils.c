@@ -160,7 +160,7 @@ uint32_t LL_GetSystemCoreClock(void)
 }
 
 
-#if defined(STM32WL33)
+#if defined(STM32WL3XX)
 /**
   * @brief This function set the HSE XTAL frequency expressed in Hz.
   * @param freq HSE XTAL frequency expressed in Hz.
@@ -209,7 +209,7 @@ uint32_t LL_GetXTALFreq(void)
 {
   return HSE_xtalFrequency;
 }
-#endif
+#endif /* STM32WL3XX */
 
 /**
   * @}
