@@ -109,6 +109,8 @@ typedef enum {
 /** @defgroup MRSUBG_Timer_Exported_Functions MRSUBG Timer Exported Functions
   * @{
   */
+void HAL_MRSUBG_TIMER_CPU_WKUP_Callback(void);
+void HAL_MRSUBG_TIMER_CPU_WKUP_IRQHandler(void);
 
 /** @defgroup MRSUBG_Timer_EF_Config MRSUBG Timer Init and Configuration functions
   * @{
@@ -233,6 +235,10 @@ void HAL_MRSUBG_TIMER_TimeoutCallback(void);
  * @return number of timers in the queue.
 */
 uint32_t HAL_MRSUBG_TIMER_GetPendingTimers(void);
+
+void HAL_MRSUBG_TIMER_MspInit(void);
+
+void HAL_MRSUBG_TIMER_MspDeInit(void);
 
 /**
   * @}

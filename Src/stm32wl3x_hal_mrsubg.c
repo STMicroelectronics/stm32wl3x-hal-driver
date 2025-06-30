@@ -402,15 +402,7 @@ uint8_t HAL_MRSubG_Init(SMRSubGConfig* pxSRadioInitStruct){
   assert_param(IS_MODULATION(pxSRadioInitStruct->xModulationSelect));
   assert_param(IS_DATARATE(pxSRadioInitStruct->lDatarate));
 
-  if (__HAL_RCC_MRSUBG_IS_CLK_DISABLED())
-  {
-    /* Radio Peripheral reset */
-    __HAL_RCC_MRSUBG_FORCE_RESET();
-    __HAL_RCC_MRSUBG_RELEASE_RESET();
-    
-    /* Enable Radio peripheral clock */
-    __HAL_RCC_MRSUBG_CLK_ENABLE();
-  }
+  HAL_MRSubG_MspInit();
   
   /* Setup design values for default registers */
   MODIFY_REG_FIELD(MR_SUBG_RADIO->AFC1_CONFIG, MR_SUBG_RADIO_AFC1_CONFIG_AFC_FAST_PERIOD, 0x00);
@@ -880,7 +872,7 @@ uint32_t HAL_MRSubG_Sequencer_Microseconds(uint32_t microseconds)
     slow_clock_freq = 32ull * 16000000ull / scm_counter_currval;
   uint64_t interpolated_absolute_time = 16u * slow_clock_freq;
 
-  return ((uint64_t)microseconds) * interpolated_absolute_time / 1000000ull;
+  return (((uint64_t)microseconds) * interpolated_absolute_time / 1000000ull) + 0x20;
 }
 
 /*
@@ -1055,7 +1047,7 @@ void HAL_MRSubG_WMBus_PacketInit(MRSubG_WMBUS_PcktFields* pxPktWMbusInit){
 
     /* Set the SYNC */
     LL_MRSubG_SetSyncPresent(ENABLE);
-    LL_MRSubG_SetSyncLength(WMBUS_SYNC_LEN_S1MS2T2OTHERTOMETER);
+    LL_MRSubG_SetSyncLength(WMBUS_SYNC_LEN_T1T2METERTOOTHER);
     LL_MRSubG_SetSyncWord(WMBUS_SYNCWORD_T1T2METERTOOTHER);
     
     /* Set the Coding type */
@@ -1150,24 +1142,55 @@ void HAL_MRSubG_802_15_4_PacketInit(MRSubG_802_15_4_PcktFields* px802_15_4PktIni
   WRITE_REG(MR_SUBG_GLOB_STATIC->CRC_INIT,  ((px802_15_4PktInit->FCSType == FCS_16BIT) ? 0 : 0xFFFFFFFF));
 }
 
+/**
+  * @brief MRSUBG MSP Init
+  * @retval None
+  */
+__weak void HAL_MRSubG_MspInit(void)
+{
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_MRSubG_MspInit could be implemented in the user file
+    */
+}
+
+/**
+  * @brief MRSUBG MSP DeInit  
+  * @retval None
+  */
+__weak void HAL_MRSubG_MspDeInit(void)
+{
+
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_MRSubG_MspDeInit could be implemented in the user file
+    */
+}
+
 __weak void HAL_MRSubG_IRQ_Callback(void)
 {
+  /* NOTE : This function Should not be modified, when the callback is needed,
+             the HAL_MRSubG_IRQ_Callback could be implemented in the user file
+    */
 }
 
 __weak void HAL_MRSubG_BUSY_Callback(void)
 {
+  /* NOTE : This function Should not be modified, when the callback is needed,
+             the HAL_MRSubG_BUSY_Callback could be implemented in the user file
+    */
 }
 
 __weak void HAL_MRSubG_TX_RX_SEQUENCE_Callback(void)
 {
-}
-
-__weak void HAL_MRSubG_CPU_WKUP_Callback(void)
-{
+  /* NOTE : This function Should not be modified, when the callback is needed,
+             the HAL_MRSubG_TX_RX_SEQUENCE_Callback could be implemented in the user file
+    */
 }
 
 __weak void HAL_MRSubG_WKUP_Callback(void)
 {
+  /* NOTE : This function Should not be modified, when the callback is needed,
+             the HAL_MRSubG_WKUP_Callback could be implemented in the user file
+    */
 }
 
 void HAL_MRSubG_IRQHandler(void)
@@ -1183,12 +1206,7 @@ void HAL_MRSubG_BUSY_IRQHandler(void)
 void HAL_MRSubG_TX_RX_SEQUENCE_IRQHandler(void)
 {
   HAL_MRSubG_TX_RX_SEQUENCE_Callback();
-}                                                 
-
-void HAL_MRSubG_CPU_WKUP_IRQHandler(void)
-{
-  HAL_MRSubG_CPU_WKUP_Callback();
-}                                                 
+}
 
 void HAL_MRSubG_WKUP_IRQHandler(void)
 {

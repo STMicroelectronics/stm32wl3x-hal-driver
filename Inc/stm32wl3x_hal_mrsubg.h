@@ -363,7 +363,7 @@ typedef struct {
   MRSubG_LengthMode	FixVarLength;           /*!< Enable the variable length mode. */  
   MRSubG_PreambleSeq	PreambleSequence;	/*!< Select the PREAMBLE pattern to be applied. */
   MRSubG_PostambleSeq	PostambleSequence;	/*!< Packet postamble control: postamble bit sequence selection. */
-  MRSubG_PcktCrcMode	CrcMode;                /*!< Set the CRC type. @ref StackCrcMode */
+  MRSubG_PcktCrcMode	CrcMode;                /*!< Set the CRC type. @ref MRSubG_PcktCrcMode */
   MRSubG_PcktCoding     Coding;			/*!< Enable the FEC/Viterbi. */
   FunctionalState	DataWhitening;          /*!< Enable the data whitening. */
   MRSubG_LenWidthhMode	LengthWidth;		/*!< Set the length width. this bit field is considered/relevant only if FIX_VAR_LEN=1 */
@@ -415,15 +415,16 @@ typedef struct {
 /** @defgroup MRSUBG_Exported_Functions MRSUBG Exported Functions
   * @{
   */
+void HAL_MRSubG_MspInit(void);
+void HAL_MRSubG_MspDeInit(void);
+
 void HAL_MRSubG_IRQ_Callback(void);
 void HAL_MRSubG_BUSY_Callback(void);
 void HAL_MRSubG_TX_RX_SEQUENCE_Callback(void);
-void HAL_MRSubG_CPU_WKUP_Callback(void);
 void HAL_MRSubG_WKUP_Callback(void);
 void HAL_MRSubG_IRQHandler(void);
 void HAL_MRSubG_BUSY_IRQHandler(void);
 void HAL_MRSubG_TX_RX_SEQUENCE_IRQHandler(void);
-void HAL_MRSubG_CPU_WKUP_IRQHandler(void);
 void HAL_MRSubG_WKUP_IRQHandler(void);
 
 SMRSubGVersion HAL_MRSubGGetVersion(void);

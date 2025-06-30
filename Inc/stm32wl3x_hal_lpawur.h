@@ -169,6 +169,8 @@ void HAL_LPAWUR_SetSync(uint32_t sync);
 uint32_t HAL_LPAWUR_GetSync(void);
 void HAL_LPAWUR_GetPayload(uint8_t* buff);
 SLPAWUR_Version HAL_LPAWUR_GetVersion(void);
+void HAL_LPAWUR_MspInit(void);
+void HAL_LPAWUR_MspDeInit(void);
 
 /**
   * @}

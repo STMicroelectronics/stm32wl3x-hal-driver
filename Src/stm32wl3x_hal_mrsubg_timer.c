@@ -209,8 +209,7 @@ void HAL_MRSUBG_TIMER_Init(MRSUBG_TIMER_InitTypeDef *MRSUBG_TIMER_InitStruct)
   
   /* Interrupt Configuration */
   LL_MRSUBG_TIMER_ClearFlag_CPUWakeup(MR_SUBG_GLOB_MISC);
-  NVIC_SetPriority(CPU_WKUP_IRQn, IRQ_HIGH_PRIORITY);
-  NVIC_EnableIRQ(CPU_WKUP_IRQn);
+  HAL_MRSUBG_TIMER_MspInit();
   
   /* HSE XTAL clock frequency */
   MRSUBG_TIMER_Context.fast_clock_freq = MRSUBG_TIMER_InitStruct->HSE_XTAL_freq/3;
@@ -235,7 +234,6 @@ void HAL_MRSUBG_TIMER_Init(MRSUBG_TIMER_InitTypeDef *MRSUBG_TIMER_InitStruct)
   } 
   else
   {
-    
     MRSUBG_TIMER_Context.calibration_machine_interval =  MIN(_us_to_machinetime(MRSUBG_TIMER_InitStruct->periodicCalibrationInterval*1000ull),
                                                             (TIMER_MAX_VALUE-TIMER_WRAPPING_MARGIN));
   }
@@ -876,6 +874,41 @@ static VTIMER_HandleType *_check_callbacks(VTIMER_HandleType *rootNode,VTIMER_Ha
   
   return returnValue;
 }
+
+/**
+  * @brief MRSUBG TIMER MSP Init 
+  * @retval None
+  */
+__weak void HAL_MRSUBG_TIMER_MspInit(void)
+{
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_MRSUBG_TIMER_MspInit could be implemented in the user file
+    */
+}
+
+/**
+  * @brief MRSUBG TIMER MSP DeInit  
+  * @retval None
+  */
+__weak void HAL_MRSUBG_TIMER_MspDeInit(void)
+{
+
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_MRSubG_MspDeInit could be implemented in the user file
+    */
+}
+
+__weak void HAL_MRSUBG_TIMER_CPU_WKUP_Callback(void)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_MRSUBG_TIMER_CPU_WKUP_Callback() can be implemented in the user file
+    */
+}
+
+void HAL_MRSUBG_TIMER_CPU_WKUP_IRQHandler(void)
+{
+  HAL_MRSUBG_TIMER_CPU_WKUP_Callback();
+}  
 
 /**
   * @}

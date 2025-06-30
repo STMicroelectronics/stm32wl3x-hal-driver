@@ -61,15 +61,7 @@ void HAL_LPAWUR_RFConfigInit(SLPAWUR_RFConfig* pxSLPAWUR_RFConfigStruct)
   assert_param(IS_AGC_MODE(pxSLPAWUR_RFConfigStruct->AgcMode));
   assert_param(IS_AGC_HOLD_MODE(pxSLPAWUR_RFConfigStruct->AgcHoldMode));
 
-  if (__HAL_RCC_LPAWUR_IS_CLK_DISABLED())
-  {
-    /* Radio Peripheral reset */
-    __HAL_RCC_LPAWUR_FORCE_RESET();
-    __HAL_RCC_LPAWUR_RELEASE_RESET();
-    
-    /* Enable Radio peripheral clock */
-    __HAL_RCC_LPAWUR_CLK_ENABLE();
-  }
+  HAL_LPAWUR_MspInit();  
 
   /* Set Energy Detector Calibration value */
   LL_LPAWUR_SetEdIcal(pxSLPAWUR_RFConfigStruct->EnergyDetectorIcal);
@@ -315,6 +307,29 @@ SLPAWUR_Version HAL_LPAWUR_GetVersion(void)
   LPAWUR_Version.revision = READ_REG_FIELD(LPAWUR->RFIP_VERSION, LPAWUR_RFIP_VERSION_REVISION);
 
   return LPAWUR_Version;
+}
+
+/**
+  * @brief LPAWUR MSP Init
+  * @retval None
+  */
+__weak void HAL_LPAWUR_MspInit(void)
+{
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_LPAWUR_MspInit could be implemented in the user file
+    */
+}
+
+/**
+  * @brief LPAWUR MSP DeInit
+  * @retval None
+  */
+__weak void HAL_LPAWUR_MspDeInit(void)
+{
+
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_LPAWUR_MspDeInit could be implemented in the user file
+    */
 }
 
 __weak void HAL_LPAWUR_IRQ_Callback(void)
