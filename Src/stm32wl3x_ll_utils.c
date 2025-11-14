@@ -57,7 +57,7 @@
                                            || ((__VALUE__) == LL_RCC_RC64MPLL_DIV_16)   \
                                            || ((__VALUE__) == LL_RCC_RC64MPLL_DIV_32)   \
                                            || ((__VALUE__) == LL_RCC_RC64MPLL_DIV_64))
-										   
+
 #define IS_LL_UTILS_DIRECT_HSE_DIV(__VALUE__) (((__VALUE__) == LL_RCC_DIRECT_HSE_DIV_1)   \
                                            || ((__VALUE__) == LL_RCC_DIRECT_HSE_DIV_2)   \
                                            || ((__VALUE__) == LL_RCC_DIRECT_HSE_DIV_4)   \
@@ -160,7 +160,7 @@ uint32_t LL_GetSystemCoreClock(void)
 }
 
 
-#if defined(STM32WL3XX)
+#if defined(STM32WL3XX) || defined(STM32WL3RX)
 /**
   * @brief This function set the HSE XTAL frequency expressed in Hz.
   * @param freq HSE XTAL frequency expressed in Hz.
@@ -209,7 +209,7 @@ uint32_t LL_GetXTALFreq(void)
 {
   return HSE_xtalFrequency;
 }
-#endif /* STM32WL3XX */
+#endif /* STM32WL3XX || STM32WL3RX */
 
 /**
   * @}
