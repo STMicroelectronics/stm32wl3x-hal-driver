@@ -100,7 +100,7 @@ then a match can never occur because SEQ_F is only set when the sequencer termin
 
 #define IS_PREAMBLE_LEN(VAL)          (VAL<=2046)
 #define IS_POSTAMBLE_LEN(VAL)         (VAL<=126)
-#define IS_SYNC_LEN(VAL)                (VAL<=32)
+#define IS_SYNC_LEN(VAL)                (VAL<=31)
 #define IS_FRAME_LEN(VAL)               (VAL>=2) && (VAL<=2047)
 #define IS_PREAMBLE_15_4G_LEN(VAL)      (((VAL)>=4) && ((VAL)<=64))
 
@@ -1499,9 +1499,9 @@ __STATIC_INLINE SQI_Threshold LL_MRSubG_GetSQIThreshold(void)
 }
 
 /**
- @verbatim
+  @verbatim
   ==============================================================================
-                     ##### How to use the MRSUBG Radio Sequencer #####
+                      ##### How to use the MRSUBG Radio Sequencer #####
   ==============================================================================
     [..]
     The LL_SEQUENCER driver contains a set of APIs that can be used to configure
@@ -1514,32 +1514,32 @@ __STATIC_INLINE SQI_Threshold LL_MRSubG_GetSQIThreshold(void)
     In this step, configuration RAM tables are created for all actions in the
     flow graph.
 
-   (+) Allocate a MRSubG_Sequencer_ActionConfiguration_t struct for each action
-       that is part of your flow graph. The sequencer hardware accesses this struct in RAM as
-       the ActionConfiguration RAM table.
-       It must persist in RAM while the Action is being executed.
-       Make sure that the RAM table is word-aligned.
+    (+) Allocate a MRSubG_Sequencer_ActionConfiguration_t struct for each action
+        that is part of your flow graph. The sequencer hardware accesses this struct in RAM as
+        the ActionConfiguration RAM table.
+        It must persist in RAM while the Action is being executed.
+        Make sure that the RAM table is word-aligned.
 
-   (+) For each ActionConfiguration item:
+    (+) For each ActionConfiguration item:
 
-       (++) Set up the dynamic registers (MR_SUBG_GLOB_DYNAMIC) of the STM32WL3x
-            as desired upon execution of the action. This can be performed
-            using the standard MRSubG_* and packet APIs.
-            Do not issue any command in the meantime (i.e., keep COMMAND_ID in
-            the COMMAND to 0) to prevent side effects.
-       (++) Copy all dynamic register values to the ActionConfiguration RAM
-            table using MRSubG_Sequencer_ApplyDynamicConfig and configure
-            which command is issued when the action gets executed.
-       (++) Change the appropriate values in the
-            MRSubG_Sequencer_ActionConfiguration_t struct to configure under
-            which conditions either NextAction1 or NextAction2 are executed,
-            to provide a pointer to ActionConfiguration RAM tables for both
-            actions and to configure inter-action intervals.
-            Use SEQ_MASK_NEVER_MATCH as NextAction1Mask / NextAction2Mask to
-            ensure that this particular next action is never executed.
-       (++) You may choose to configure an ActionTimeout, i.e. limit the
-            maximum time to wait for a mask match for either NextAction1 or
-            NextAction2.
+        (++) Set up the dynamic registers (MR_SUBG_GLOB_DYNAMIC) of the STM32WL3x
+             as desired upon execution of the action. This can be performed
+             using the standard MRSubG_* and packet APIs.
+             Do not issue any command in the meantime (i.e., keep COMMAND_ID in
+             the COMMAND to 0) to prevent side effects.
+        (++) Copy all dynamic register values to the ActionConfiguration RAM
+             table using MRSubG_Sequencer_ApplyDynamicConfig and configure
+             which command is issued when the action gets executed.
+        (++) Change the appropriate values in the
+             MRSubG_Sequencer_ActionConfiguration_t struct to configure under
+             which conditions either NextAction1 or NextAction2 are executed,
+             to provide a pointer to ActionConfiguration RAM tables for both
+             actions and to configure inter-action intervals.
+             Use SEQ_MASK_NEVER_MATCH as NextAction1Mask / NextAction2Mask to
+             ensure that this particular next action is never executed.
+        (++) You may choose to configure an ActionTimeout, i.e. limit the
+             maximum time to wait for a mask match for either NextAction1 or
+             NextAction2.
 
   *** Step 2: Set up GlobalConfiguration table ***
   ================================================
@@ -1548,43 +1548,43 @@ __STATIC_INLINE SQI_Threshold LL_MRSubG_GetSQIThreshold(void)
     sequencer properties and the contents of the static configuration
     registers is created.
 
-   (+) Allocate a MRSubG_Sequencer_GlobalConfiguration_t struct.
-       The sequencer hardware accesses this struct in RAM as the
-       GlobalConfiguration RAM table. The sequencer hardware will update
-       properties of this RAM table during operation.
+    (+) Allocate a MRSubG_Sequencer_GlobalConfiguration_t struct.
+        The sequencer hardware accesses this struct in RAM as the
+        GlobalConfiguration RAM table. The sequencer hardware will update
+        properties of this RAM table during operation.
 
-   (+) Modify the GlobalConfiguration struct:
+    (+) Modify the GlobalConfiguration struct:
 
-       (++) Set up the static registers (MR_SUBG_GLOB_STATIC) of the STM32WL3x
-            as desired upon execution of the action. This can be performed
-            using the standard MRSubG_* and packet APIs.
-       (++) Copy all static register values to the GlobalConfiguration RAM
-            table using MRSubG_Sequencer_ApplyStaticConfig.
-       (++) Set the current (i.e., first) action to execute by making
-            ActionConfigPtr point to the appropriate ActionConfiguration.
+        (++) Set up the static registers (MR_SUBG_GLOB_STATIC) of the STM32WL3x
+             as desired upon execution of the action. This can be performed
+             using the standard MRSubG_* and packet APIs.
+        (++) Copy all static register values to the GlobalConfiguration RAM
+             table using MRSubG_Sequencer_ApplyStaticConfig.
+        (++) Set the current (i.e., first) action to execute by making
+             ActionConfigPtr point to the appropriate ActionConfiguration.
 
-   (+) Tell the sequencer hardware where to find the GlobalConfiguration
-       by calling LL_MRSubG_Sequencer_SetGlobalConfiguration.
+    (+) Tell the sequencer hardware where to find the GlobalConfiguration
+        by calling LL_MRSubG_Sequencer_SetGlobalConfiguration.
 
   *** Step 3: Trigger the sequencer ***
   =====================================
     [..]
-   (+) When desired, start the sequencer using MRSubG_Sequencer_Trigger.
+    (+) When desired, start the sequencer using MRSubG_Sequencer_Trigger.
 
-   (+) You may choose to intervene into the sequencer control flow
-       programmatically using, for example, an interrupt.
+    (+) You may choose to intervene into the sequencer control flow
+        programmatically using, for example, an interrupt.
 
-   (+) If, at any point, you need to restart the sequencer:
+    (+) If, at any point, you need to restart the sequencer:
 
-       (++) Set the action to execute next by modifying ActionConfigPtr in
-            the GlobalConfiguration struct.
-       (++) Re-trigger the sequencer using MRSubG_Sequencer_Trigger.
+        (++) Set the action to execute next by modifying ActionConfigPtr in
+             the GlobalConfiguration struct.
+        (++) Re-trigger the sequencer using MRSubG_Sequencer_Trigger.
   @endverbatim
   **/
 
-/*
+/**
   * @brief  Set global configuration table for sequencer hardware.
-  * @param  Pointer to the global configuration table struct.
+  * @param  cfg Pointer to the global configuration table struct.
   * @retval None
   */
 __STATIC_INLINE void LL_MRSubG_Sequencer_SetGlobalConfiguration(MRSubG_Sequencer_GlobalConfiguration_t *cfg)
@@ -1593,29 +1593,29 @@ __STATIC_INLINE void LL_MRSubG_Sequencer_SetGlobalConfiguration(MRSubG_Sequencer
   MR_SUBG_GLOB_RETAINED->SEQ_GLOBALTABLE_PTR = ((uint32_t)cfg) - SRAM_BASE;
 }
 
-/*
- * @brief  Determine whether sequencer hardware is currently active.
- * @retval 1 in case sequencer is active, otherwise 0
- */
+/**
+  * @brief  Determine whether sequencer hardware is currently active.
+  * @retval 1 in case sequencer is active, otherwise 0
+  */
 __STATIC_INLINE uint8_t LL_MRSubG_Sequencer_IsActive(void)
 {
   return (MR_SUBG_GLOB_MISC->SEQUENCER_CTRL & MR_SUBG_GLOB_MISC_SEQUENCER_CTRL_DISABLE_SEQ) ? 0 : 1;
 }
 
-/*
- * @brief  Trigger sequencer, i.e., launch sequence of actions.
- * @retval None
- */
+/**
+  * @brief  Trigger sequencer, i.e., launch sequence of actions.
+  * @retval None
+  */
 __STATIC_INLINE void LL_MRSubG_Sequencer_Trigger(void)
 {
   MR_SUBG_GLOB_MISC->SEQUENCER_CTRL &= ~MR_SUBG_GLOB_MISC_SEQUENCER_CTRL_DISABLE_SEQ;
   MR_SUBG_GLOB_MISC->SEQUENCER_CTRL |= MR_SUBG_GLOB_MISC_SEQUENCER_CTRL_GEN_SEQ_TRIGGER;
 }
 
-/*
- * @brief  Disable sequencer hardware.
- * @retval None
- */
+/**
+  * @brief  Disable sequencer hardware.
+  * @retval None
+  */
 __STATIC_INLINE void LL_MRSubG_Sequencer_Disable(void)
 {
   MR_SUBG_GLOB_MISC->SEQUENCER_CTRL |=

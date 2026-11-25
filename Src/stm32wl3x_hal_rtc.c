@@ -206,7 +206,7 @@
   */
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
 {
-  HAL_StatusTypeDef status = HAL_ERROR;
+  HAL_StatusTypeDef status;
 
   /* Check RTC handler validity */
   if (hrtc == NULL)
@@ -317,7 +317,7 @@ HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
   */
 HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
 {
-  HAL_StatusTypeDef status = HAL_ERROR;
+  HAL_StatusTypeDef status;
 
   /* Check the parameters */
   assert_param(IS_RTC_ALL_INSTANCE(hrtc->Instance));
@@ -336,7 +336,7 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
     /* Reset RTC registers */
     hrtc->Instance->TR = 0x00000000U;
     hrtc->Instance->DR = (RTC_DR_WDU_0 | RTC_DR_MU_0 | RTC_DR_DU_0);
-    hrtc->Instance->CR  &= 0x00000000U;
+    hrtc->Instance->CR = 0x00000000U;
     hrtc->Instance->WUTR = RTC_WUTR_WUT;
     hrtc->Instance->PRER = (uint32_t)(RTC_PRER_PREDIV_A | 0x000000FFU);
     hrtc->Instance->ALRMAR   = 0x00000000U;
@@ -1403,7 +1403,7 @@ HAL_StatusTypeDef HAL_RTC_PollForAlarmAEvent(RTC_HandleTypeDef *hrtc, uint32_t T
   {
     if (Timeout != HAL_MAX_DELAY)
     {
-      if ((Timeout == 0U) || ((HAL_GetTick() - tickstart) > Timeout))
+      if (((HAL_GetTick() - tickstart) > Timeout) || (Timeout == 0U))
       {
         hrtc->State = HAL_RTC_STATE_TIMEOUT;
         return HAL_TIMEOUT;

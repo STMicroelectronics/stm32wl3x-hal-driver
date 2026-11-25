@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    stm32wl3x_hal_mrsubg.c
   * @author  GPM Application Team
-  * @brief   This file provides firmware functions to manage the MRSubG
+  * @brief   MRSUBG HAL driver source file.
   ******************************************************************************
   * @attention
   *
@@ -156,11 +156,11 @@ static void MRSubG_169MHz_RestoreFrequencyDev(void);
 #endif /* IS_169MHZ */
 
 /**
-  * @brief  Computes the synth word from a given frequency.
-  * @param  frequency Target frequency value expressed in Hz.
-  * @param  synth_int pointer to the int part of the synth word
-  * @param  synth_frac pointer to the fract part of the synth word
-  * @param  band pointer to the high/low band selector
+  * @brief  Compute synthesizer integer and fractional words from a carrier frequency.
+  * @param  frequency Target carrier frequency in Hz.
+  * @param  synth_int Pointer to the returned synthesizer integer part.
+  * @param  synth_frac Pointer to the returned synthesizer fractional part.
+  * @param  band Pointer to the returned band selector value.
   * @retval None.
   */
 static void MRSubG_ComputeSynthWord(uint32_t frequency, uint8_t *synth_int, uint32_t *synth_frac, uint8_t *band)
@@ -186,10 +186,10 @@ static void MRSubG_ComputeSynthWord(uint32_t frequency, uint8_t *synth_int, uint
 }
 
 /**
-  * @brief  Evaluate the data rate.
-  * @param  cM the mantissa value.
-  * @param  cE the exponent value.
-  * @retval The datarate.
+  * @brief  Compute the effective data rate from mantissa and exponent fields.
+  * @param  cM Data-rate mantissa field.
+  * @param  cE Data-rate exponent field.
+  * @retval Data rate in symbols per second.
   */
 static uint32_t MRSubG_ComputeDatarate(uint16_t cM, uint8_t cE)
 {
@@ -253,8 +253,8 @@ static void MRSubG_SearchDatarateME(uint32_t lDatarate, uint16_t *pcM, uint8_t *
 /**
   * @brief  Returns the mantissa and exponent, whose value used in the Frequency Deviation formula
   *         will give the value closer to the given one.
-  * @param  cM the mantissa value.
-  * @param  cE the exponent value.
+  * @param  cM Data-rate mantissa field.
+  * @param  cE Data-rate exponent field.
   * @param  bs the band value.
   * @retval The frequency deviation.
   */
@@ -381,11 +381,11 @@ static void MRSubG_SearchChannelBwME(uint32_t lBandwidth, uint8_t *pcM, uint8_t 
   (*pcM) = (uint8_t)(i % MRSUBG_CHFLT_M_VALUES);
 }
 
-/*
- * @brief Convert RSSI_LEVEL_ON_SYNC to dBm
- * @param rssi_level_from_register the value to convert
- * @retval The converted RSSI level in dBm
-*/
+/**
+  * @brief Convert RSSI_LEVEL_ON_SYNC to dBm
+  * @param rssi_level_from_register the value to convert
+  * @retval The converted RSSI level in dBm
+  */
 static int32_t MRSubG_ConvertRssiToDbm(uint16_t rssi_level_from_register)
 {
   return (rssi_level_from_register / 2) - (96 + GAIN_RX_CHAIN);
@@ -417,7 +417,7 @@ static uint8_t MRSubG_GetAllowedMaxOutputPower(MRSubG_PA_DRVMode paDrvMode)
 }
 
 /**
-  * @brief  Set the proper DSSS configuration
+  * @brief  Apply DSSS settings according to modulation and DSSS exponent.
   * @param  xModulation the modulation type.
   * @param  dsssExponent the DSSS exponent.
   * @retval None.
@@ -584,7 +584,7 @@ uint8_t HAL_MRSubG_Init(SMRSubGConfig_t *pxSRadioInitStruct)
 }
 
 /**
-  * @brief  Get the main radio info for the current configuration.
+  * @brief  Read back the current MRSUBG radio configuration.
   * @param  pxSRadioInitStruct pointer to a structure of the type of @ref SMRSubGConfig_t
   * @retval None.
   */
@@ -600,7 +600,7 @@ void HAL_MRSubG_GetInfo(SMRSubGConfig_t *pxSRadioInitStruct)
 }
 
 /**
-  * @brief  Set the Synth word and the Band Select register according to desired base carrier frequency.
+  * @brief  Program carrier base frequency and synthesizer band selection.
   * @param  lFBase the base carrier frequency expressed in Hz as unsigned word.
   * @retval None.
   */
@@ -818,7 +818,7 @@ void HAL_MRSubG_169MHz_prepareRx(void)
 #endif /* IS_169MHZ */
 
 /**
-  * @brief  Set the channel filter bandwidth.
+  * @brief  Program channel filter bandwidth and IF offset settings.
   * @param  lBandwidth channel filter bandwidth expressed in Hz.
   *         The API will search the most closer value according to a fixed table of channel
   *         bandwidth values (@ref s_Channel_Filter_Bandwidth).
@@ -908,7 +908,7 @@ uint32_t HAL_MRSubG_GetChannelBW(void)
 }
 
 /**
-  * @brief  Set the modulation type.
+  * @brief  Configure modulation format and DSSS parameters.
   * @param  xModulation modulation to set.
   *         This parameter shall be of type @ref MRSubGModSelect.
   * @param  dsssExponent the DSSS spreading exponent. 0 means DSSS disabled.
@@ -1124,7 +1124,7 @@ int8_t HAL_MRSubG_GetPALeveldBm(void)
 }
 
 /**
-  * @brief  Returns the number of bytes after each TX/RX transaction.
+  * @brief  Get total transferred bytes for the current TX or RX transaction.
   * @retval The number of bytes after each TX/RX transaction.
   */
 uint32_t HAL_MRSubG_GetBytesOfTransaction(void)
@@ -1145,11 +1145,11 @@ uint32_t HAL_MRSubG_GetBytesOfTransaction(void)
   return (used * size) + count;
 }
 
-/*
- * @brief  Convert microseconds into interpolated absolute time value. SCM_COUNTER must be ready for meaningful results.
- * @param  microseconds Time in microseconds (integer)
- * @retval Time in interpolated absolute time units, can be used for sequencer intervals and timeouts.
- */
+/**
+  * @brief  Convert microseconds into interpolated absolute time value. SCM_COUNTER must be ready for meaningful results.
+  * @param  microseconds Time in microseconds (integer)
+  * @retval Time in interpolated absolute time units, can be used for sequencer intervals and timeouts.
+  */
 uint32_t HAL_MRSubG_Sequencer_Microseconds(uint32_t microseconds)
 {
   /* Determine true frequency (relative to 16MHz clock) of "interpolated absolute time" value */
@@ -1170,32 +1170,32 @@ uint32_t HAL_MRSubG_Sequencer_Microseconds(uint32_t microseconds)
   return (((uint64_t)microseconds) * interpolated_absolute_time / 1000000ull) + 0x20;
 }
 
-/*
- * @brief  Convert milliseconds into interpolated absolute time value. SCM_COUNTER must be ready for meaningful results.
- * @param  milliseconds Time in milliseconds (integer)
- * @retval Time in interpolated absolute time units, can be used for sequencer intervals and timeouts.
- */
+/**
+  * @brief  Convert milliseconds into interpolated absolute time value. SCM_COUNTER must be ready for meaningful results.
+  * @param  milliseconds Time in milliseconds (integer)
+  * @retval Time in interpolated absolute time units, can be used for sequencer intervals and timeouts.
+  */
 uint32_t HAL_MRSubG_Sequencer_Milliseconds(uint32_t milliseconds)
 {
   return HAL_MRSubG_Sequencer_Microseconds(milliseconds * 1000ul);
 }
 
-/*
- * @brief  Convert seconds into interpolated absolute time value. SCM_COUNTER must be ready for meaningful results.
- * @param  seconds Time in seconds (integer)
- * @retval Time in interpolated absolute time units, can be used for sequencer intervals and timeouts.
- */
+/**
+  * @brief  Convert seconds into interpolated absolute time value. SCM_COUNTER must be ready for meaningful results.
+  * @param  seconds Time in seconds (integer)
+  * @retval Time in interpolated absolute time units, can be used for sequencer intervals and timeouts.
+  */
 uint32_t HAL_MRSubG_Sequencer_Seconds(uint32_t seconds)
 {
   return HAL_MRSubG_Sequencer_Microseconds(seconds * 1000000ul);
 }
 
-/*
- * @brief  Store the current contents of all static SubGHz static configuration registers to
- *         given global configuration table for sequencer.
- * @param  cfg Pointer to global configuration table struct.
- * @retval SUCCESS if operation was successful, ERROR if RAM table pointer is not word-aligned.
- */
+/**
+  * @brief  Store the current contents of all static SubGHz static configuration registers to
+  *         given global configuration table for sequencer.
+  * @param  cfg Pointer to global configuration table struct.
+  * @retval SUCCESS if operation was successful, ERROR if RAM table pointer is not word-aligned.
+  */
 ErrorStatus HAL_MRSubG_Sequencer_ApplyStaticConfig(MRSubG_Sequencer_GlobalConfiguration_t *cfg)
 {
   /* Ensure GlobalConfiguration RAM table is word-aligned */
@@ -1209,14 +1209,14 @@ ErrorStatus HAL_MRSubG_Sequencer_ApplyStaticConfig(MRSubG_Sequencer_GlobalConfig
   return SUCCESS;
 }
 
-/*
- * @brief  Store the current contents of all static SubGHz static configuration registers to
- *         given global configuration table for sequencer.
- * @param  cfg Pointer to global configuration table struct.
- * @param  cmd The command (e.g., TX / RX / SABORT) to issue upon execution of this sequencer action.
- * @retval SUCCESS if operation was successful, ERROR if RAM table pointer is not word-aligned
- *         or NextAction1Interval / NextAction2Interval value is invalid.
- */
+/**
+  * @brief  Store the current contents of all static SubGHz static configuration registers to
+  *         given global configuration table for sequencer.
+  * @param  cfg Pointer to global configuration table struct.
+  * @param  cmd The command (e.g., TX / RX / SABORT) to issue upon execution of this sequencer action.
+  * @retval SUCCESS if operation was successful, ERROR if RAM table pointer is not word-aligned
+  *         or NextAction1Interval / NextAction2Interval value is invalid.
+  */
 ErrorStatus HAL_MRSubG_Sequencer_ApplyDynamicConfig(MRSubG_Sequencer_ActionConfiguration_t *cfg, MRSubGCmd cmd)
 {
   /* Ensure ActionConfiguration RAM table is word-aligned */
@@ -1567,3 +1567,4 @@ void HAL_MRSubG_WKUP_IRQHandler(void)
 /**
   * @}
   */
+

@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    stm32wl3x_hal_mrsubg.h
   * @author  GPM Application Team
-  * @brief   Header file of MRSubG HAL module.
+  * @brief   MRSUBG HAL module header file.
   ******************************************************************************
   * @attention
   *
@@ -78,14 +78,14 @@ extern "C" {
 
 
 /**
-  * @brief Send a specific command to the STM32WL3x.
+  * @brief Send an MRSUBG strobe command.
   * @param __CMD_NAME__ code of the command to send.
   * @retval None.
   */
 #define __HAL_MRSUBG_STROBE_CMD(__CMD_NAME__)           LL_MRSubG_StrobeCommand(__CMD_NAME__)
 
 /**
-  * @brief Sets the RX_MODE for the MRSUBG.
+  * @brief Configure MRSUBG RX operating mode.
   * @param __MODE__ the rx mode
   *        This parameter can be any of the following values:
   *            @arg @ref RX_NORMAL             Only payload is stored into the RAM buffers. CRC and packet length
@@ -104,7 +104,7 @@ extern "C" {
 #define __HAL_MRSUBG_SET_RX_MODE(__MODE__)              LL_MRSubG_SetRXMode(__MODE__)
 
 /**
-  * @brief Sets the TX_MODE for the MRSUBG.
+  * @brief Configure MRSUBG TX operating mode.
   * @param __MODE__ the tx mode
   *        This parameter can be any of the following values:
   *            @arg @ref TX_NORMAL          Only payload is provided through RAM buffers. Rest of the frame
@@ -289,8 +289,9 @@ extern "C" {
   READ_REG_FIELD(MR_SUBG_GLOB_STATIC->IF_CTRL, MR_SUBG_GLOB_STATIC_IF_CTRL_IF_OFFSET_DIG)
 
 /**
-  * @brief  Get the RSSI level in dBm.
-  * @retval The RSSI level to convert.
+  * @brief  Convert a raw RSSI register field value to dBm.
+  * @param  __VALUE__ Raw RSSI register field value.
+  * @retval RSSI level in dBm.
   */
 #define __HAL_MRSUBG_CONVERT_RSSI_TO_DBM(__VALUE__)       (__VALUE__/2)-(96+GAIN_RX_CHAIN)
 
@@ -304,7 +305,7 @@ extern "C" {
   */
 
 /**
-  * @brief  STM32WL3x Modulation enumeration
+  * @brief  MRSUBG modulation selection.
   */
 typedef enum
 {
@@ -365,7 +366,7 @@ typedef enum
 } MRSubG_PcktType;
 
 /**
-  * @brief  WMbus submode enumeration.
+  * @brief  wM-Bus submode selection.
   */
 typedef enum
 {
@@ -387,7 +388,7 @@ typedef struct
   uint32_t          lFreqDev;           /*!< Specifies the frequency deviation expressed in Hz. */
   uint32_t          lBandwidth;         /*!< Specifies the channel filter bandwidth expressed in Hz. */
   uint8_t           dsssExp;            /*!< Specifies the DSSS spreading exponent. Use 0 to disable DSSS. */
-  int8_t           outputPower;         /*!< PA value to write expressed in dBm. */
+  int8_t           outputPower;         /*!< Requested PA output power in dBm. */
   MRSubG_PA_DRVMode PADrvMode;          /*!< PA drive mode. */
 } SMRSubGConfig_t;
 
@@ -408,8 +409,8 @@ typedef struct
 typedef struct
 {
   uint16_t    PreambleLength;         /*!< Set the preamble length of packet in pairs of bits (0 to 2046) */
-  uint16_t    PostambleLength;  /*!< Set the postable length of packet. The number of POSTAMBLE pairs of bits can be set from 0 to 63. */
-  uint8_t   SyncLength;             /*!< Set the sync word length of packet in bits. From 1 to 64 bits. */
+  uint16_t    PostambleLength;  /*!< Postamble length in bit pairs (0 to 63). */
+  uint8_t   SyncLength;             /*!< Set the sync word length of the packet in bits. From 0 to 31; each value corresponds to value + 1. */
   uint32_t    SyncWord;               /*!< Set the sync words in MSB. */
   MRSubG_LengthMode FixVarLength;           /*!< Enable the variable length mode. */
   MRSubG_PreambleSeq  PreambleSequence; /*!< Select the PREAMBLE pattern to be applied. */
@@ -418,7 +419,7 @@ typedef struct
   MRSubG_PcktCoding     Coding;     /*!< Enable the FEC/Viterbi. */
   FunctionalState DataWhitening;          /*!< Enable the data whitening. */
   MRSubG_LenWidthhMode  LengthWidth;    /*!< Set the length width. this bit field is considered/relevant only if FIX_VAR_LEN=1 */
-  FunctionalState       SyncPresent;    /*!< ndicate if a SYNC word is present on the frame or not (null length) */
+  FunctionalState       SyncPresent;    /*!< Enable or disable SYNC field insertion. */
 } MRSubG_PcktBasicFields_t;
 
 /**
@@ -458,7 +459,7 @@ typedef struct
                                           - 1: FCS_16BIT CRC mode3 */
   FunctionalState       Whitening;      /*!< Enable the data whitening. */
   MRSubG_FEC15_4gType   FecType;  /*!< FEC type for 802.15.4g */
-  uint16_t            FrameLength;  /*!< size of payload + FCS, in bytes */
+  uint16_t            FrameLength;  /*!< Frame length in bytes (payload plus FCS). */
 } MRSubG_802_15_4_PcktFields_t;
 
 

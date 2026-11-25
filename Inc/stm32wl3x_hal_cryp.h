@@ -32,7 +32,6 @@ extern "C" {
   */
 
 #if defined(AES)
-
 /** @defgroup CRYP CRYP
   * @brief CRYP HAL module driver.
   * @{
@@ -502,7 +501,7 @@ HAL_StatusTypeDef HAL_CRYP_Init(CRYP_HandleTypeDef *hcryp);
 HAL_StatusTypeDef HAL_CRYP_DeInit(CRYP_HandleTypeDef *hcryp);
 void HAL_CRYP_MspInit(CRYP_HandleTypeDef *hcryp);
 void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp);
-HAL_StatusTypeDef HAL_CRYP_SetConfig(CRYP_HandleTypeDef *hcryp, CRYP_ConfigTypeDef *pConf);
+HAL_StatusTypeDef HAL_CRYP_SetConfig(CRYP_HandleTypeDef *hcryp, const CRYP_ConfigTypeDef *pConf);
 HAL_StatusTypeDef HAL_CRYP_GetConfig(CRYP_HandleTypeDef *hcryp, CRYP_ConfigTypeDef *pConf);
 #if (USE_HAL_CRYP_REGISTER_CALLBACKS == 1U)
 HAL_StatusTypeDef HAL_CRYP_RegisterCallback(CRYP_HandleTypeDef *hcryp, HAL_CRYP_CallbackIDTypeDef CallbackID,
@@ -542,11 +541,11 @@ HAL_StatusTypeDef HAL_CRYP_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint32_t *Inpu
   */
 /* Interrupt Handler functions  **********************************************/
 void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp);
-HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
+HAL_CRYP_STATETypeDef HAL_CRYP_GetState(const CRYP_HandleTypeDef *hcryp);
 void HAL_CRYP_InCpltCallback(CRYP_HandleTypeDef *hcryp);
 void HAL_CRYP_OutCpltCallback(CRYP_HandleTypeDef *hcryp);
 void HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp);
-uint32_t HAL_CRYP_GetError(CRYP_HandleTypeDef *hcryp);
+uint32_t HAL_CRYP_GetError(const CRYP_HandleTypeDef *hcryp);
 
 /**
   * @}

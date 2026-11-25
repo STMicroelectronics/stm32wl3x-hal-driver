@@ -6,9 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Release Notes for STM32CubeWL33 HAL Drivers Package</title>
   <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -25,7 +22,7 @@
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
-  <link rel="stylesheet" href="./_htmresc/mini-st_2020.css" />
+  <link rel="stylesheet" href="_htmresc/mini-st_2020.css" />
   <link rel="icon" type="image/x-icon" href="_htmresc/favicon.png" />
 </head>
 <body>
@@ -68,11 +65,142 @@ drivers)</li>
 <section id="update-history" class="col-sm-12 col-lg-8">
 <h1>Update History</h1>
 <div class="collapse">
-<input type="checkbox" id="collapse-section7" checked aria-hidden="true">
+<input type="checkbox" id="collapse-section8" checked aria-hidden="true">
+<label for="collapse-section8" aria-hidden="true"><strong>V1.6.0 /
+28-October-2026</strong></label>
+<div>
+<h2 id="main-changes">Main Changes</h2>
+<ul>
+<li>SA0076 fixed in HAL CRYP.</li>
+<li>Various improvements in HAL CRYP.</li>
+<li>Bug fix on HAL RTC.</li>
+<li>Bug fix on HAL DMA.</li>
+<li>MISRA C:2012 and Coverity corrections on the CRYP, RTC, IWDG and SPI
+drivers.</li>
+<li>Improved the MRSUBG and MRSUBG Timer driver documentation.</li>
+<li>Corrected the MRSUBG sync word length range.</li>
+<li>Fixed the I2S source clock computation in the LL SPI driver.</li>
+</ul>
+<h2 id="contents">Contents</h2>
+<h3 id="hal-drivers-updates"><strong>HAL Drivers</strong> updates</h3>
+<ul>
+<li><strong>HAL CRYP</strong>/ <strong>LL CRYP</strong> driver
+<ul>
+<li>SA0076 fixed</li>
+<li>Prevented reading outside the boundaries of the local mask array for
+all data types</li>
+<li>Fixed the AES-GCM processing when the input data is not word
+aligned</li>
+<li>Fixed a Coverity issue in
+<code>CRYP_ClearCCFlagWhenHigh()</code></li>
+<li>Added the <code>const</code> qualifier to the following APIs (MISRA
+C:2012 Rule 8.13)
+<pre><code>HAL_StatusTypeDef HAL_CRYP_SetConfig(CRYP_HandleTypeDef *hcryp, const CRYP_ConfigTypeDef *pConf)</code></pre>
+</li>
+<pre><code>HAL_CRYP_STATETypeDef HAL_CRYP_GetState(const CRYP_HandleTypeDef *hcryp)</code></pre>
+</li>
+<pre><code>uint32_t HAL_CRYP_GetError(const CRYP_HandleTypeDef *hcryp)</code></pre>
+</li>
+<pre><code>HAL_StatusTypeDef HAL_CRYPEx_AESGCM_GenerateAuthTAG(CRYP_HandleTypeDef *hcryp, const uint32_t *AuthTag, uint32_t Timeout)</code></pre>
+</li>
+<pre><code>HAL_StatusTypeDef HAL_CRYPEx_AESCCM_GenerateAuthTAG(CRYP_HandleTypeDef *hcryp, const uint32_t *AuthTag, uint32_t Timeout)</code></pre>
+</li></li>
+<li>Explicit initialization of the local temporary buffers (MISRA C:2012
+Rule 9.1)</li>
+<li>Removed the <code>__HAL_UNLOCK()</code> calls having no matching
+<code>__HAL_LOCK()</code></li>
+</ul></li>
+<li><strong>HAL RTC</strong>/ <strong>LL RTC</strong> driver
+<ul>
+<li>Fixed <code>HAL_RTCEx_DisableBypassShadow()</code>: the inverted
+BYPSHAD mask was cast to <code>uint8_t</code>, so the read-modify-write
+cleared the upper 24 bits of the CR register</li>
+<li>Reworked <code>RTC_ByteToBcd2()</code> to compute the result in a
+local variable instead of modifying its own parameter (MISRA C:2012 Rule
+17.8), and added an explicit cast to remove an implicit narrowing
+conversion warning</li>
+<li>Reordered the timeout conditions of
+<code>HAL_RTC_PollForAlarmAEvent()</code>,
+<code>HAL_RTCEx_PollForTimeStampEvent()</code>,
+<code>HAL_RTCEx_PollForTamper1Event()</code> and
+<code>HAL_RTCEx_PollForWakeUpTimerEvent()</code> to keep
+<code>HAL_GetTick()</code> out of the right-hand side of the
+<code>||</code> operator (MISRA C:2012 Rule 13.5)</li>
+<li>Added parentheses around the macro parameters of
+<code>LL_RTC_WriteReg()</code> and <code>LL_RTC_ReadReg()</code> (MISRA
+C:2012 Rule 20.7)</li>
+<li>Added parentheses around the multiplication in
+<code>__LL_RTC_CONVERT_BCD2BIN()</code> (MISRA C:2012 Rule 12.1)</li>
+<li>Removed the redundant initialization of the local status variable in
+<code>HAL_RTC_Init()</code> and <code>HAL_RTC_DeInit()</code>, and
+replaced the CR clearing in <code>HAL_RTC_DeInit()</code> by a plain
+write</li>
+</ul></li>
+<li><strong>HAL DMA</strong> driver
+<ul>
+<li>Disable DMA channel before interrupt handling in
+<code>HAL_DMA_Abort</code> and <code>HAL_DMA_Abort_IT</code></li>
+</ul></li>
+<li><strong>HAL IWDG</strong>/ <strong>LL IWDG</strong> driver
+<ul>
+<li><p><code>HAL_IWDG_DEFAULT_TIMEOUT</code> is now computed from
+<code>LSI_VALUE</code> and <code>LSI_STARTUP_TIME</code> instead of
+being a fixed value</p>
+<p><strong><em>Note: the resulting timeout value differs from the
+previous releases</em></strong></p></li>
+<li><p>Added the <code>const</code> qualifier to the LL read APIs
+(<code>LL_IWDG_GetPrescaler()</code>,
+<code>LL_IWDG_GetReloadCounter()</code>,
+<code>LL_IWDG_GetWindow()</code>,
+<code>LL_IWDG_IsActiveFlag_PVU()</code>,
+<code>LL_IWDG_IsActiveFlag_RVU()</code>,
+<code>LL_IWDG_IsActiveFlag_WVU()</code>,
+<code>LL_IWDG_IsReady()</code>)</p></li>
+</ul></li>
+<li><strong>HAL MRSUBG</strong>/ <strong>LL MRSUBG</strong> driver
+<ul>
+<li>Doxygen comments aligned to the ST style and MRSUBG Timer
+descriptions made more informative</li>
+<li>Corrected the <code>SyncLength</code> range of
+<code>MRSubG_PcktBasicFields_t</code>: the field is now documented as 0
+to 31, each value standing for value + 1 bit, and
+<code>IS_SYNC_LEN()</code> rejects 32</li>
+</ul></li>
+<li><strong>LL SPI</strong> driver
+<ul>
+<li>Fixed the I2S source clock computation when the direct HSE is used:
+the value is now derived from <code>HSE_VALUE</code> instead of being
+hardcoded to 24 MHz, so a 50 MHz crystal gives the correct audio
+frequency</li>
+<li>Added the <code>const</code> qualifier to the following API (MISRA
+C:2012 Rule 8.13)
+<pre><code>ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, const LL_I2S_InitTypeDef *I2S_InitStruct)</code></pre></li>
+</ul></li>
+</ul>
+<h2 id="backward-compatibility">Backward compatibility</h2>
+<ul>
+<li>Yes</li>
+</ul>
+<h2 id="known-limitations">Known Limitations</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="dependencies">Dependencies</h2>
+<ul>
+<li>STM32WL3x CMSIS device V1.6.0</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>None</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section7" aria-hidden="true">
 <label for="collapse-section7" aria-hidden="true"><strong>V1.5.0 /
 05-June-2026</strong></label>
 <div>
-<h2 id="main-changes">Main Changes</h2>
+<h2 id="main-changes-1">Main Changes</h2>
 <ul>
 <li>Updated the MRSUBG HAL driver to enhance support for 169MHz
 transmission and reception on suitable boards.</li>
@@ -82,8 +210,8 @@ issue.</li>
 configurability).</li>
 <li>Added several PWR LL APIs to manipulate CR2 register fields.</li>
 </ul>
-<h2 id="contents">Contents</h2>
-<h3 id="hal-drivers-updates"><strong>HAL Drivers</strong> updates</h3>
+<h2 id="contents-1">Contents</h2>
+<h3 id="hal-drivers-updates-1"><strong>HAL Drivers</strong> updates</h3>
 <ul>
 <li><strong>HAL MRSUBG</strong>/ <strong>LL MRSUBG</strong> driver
 <ul>
@@ -140,19 +268,19 @@ fields
 code)</li>
 </ul></li>
 </ul>
-<h2 id="backward-compatibility">Backward compatibility</h2>
+<h2 id="backward-compatibility-1">Backward compatibility</h2>
 <ul>
 <li>Yes</li>
 </ul>
-<h2 id="known-limitations">Known Limitations</h2>
+<h2 id="known-limitations-1">Known Limitations</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="dependencies">Dependencies</h2>
+<h2 id="dependencies-1">Dependencies</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="notes">Notes</h2>
+<h2 id="notes-1">Notes</h2>
 <ul>
 <li>None</li>
 </ul>
@@ -163,15 +291,15 @@ code)</li>
 <label for="collapse-section6" aria-hidden="true"><strong>V1.4.0 /
 04-February-2026</strong></label>
 <div>
-<h2 id="main-changes-1">Main Changes</h2>
+<h2 id="main-changes-2">Main Changes</h2>
 <ul>
 <li>Update of I2C and SMBUS HAL drivers to fix build warnings.</li>
 <li>Added LL APIs to manipulate AGC_ANA_ENG and PA_REG bitfields.</li>
 <li>Added LL APIs related to RCC “CR” register</li>
 <li>fixed HAL_RCCEx_GetPeriphCLKFreq()</li>
 </ul>
-<h2 id="contents-1">Contents</h2>
-<h3 id="hal-drivers-updates-1"><strong>HAL Drivers</strong> updates</h3>
+<h2 id="contents-2">Contents</h2>
+<h3 id="hal-drivers-updates-2"><strong>HAL Drivers</strong> updates</h3>
 <ul>
 <li><strong>HAL I2C</strong> driver
 <ul>
@@ -201,45 +329,9 @@ its CMSIS definition</li>
 clock configurations</li>
 </ul></li>
 </ul>
-<h2 id="backward-compatibility-1">Backward compatibility</h2>
-<ul>
-<li>Yes</li>
-</ul>
-<h2 id="known-limitations-1">Known Limitations</h2>
-<ul>
-<li>None</li>
-</ul>
-<h2 id="dependencies-1">Dependencies</h2>
-<ul>
-<li>None</li>
-</ul>
-<h2 id="notes-1">Notes</h2>
-<ul>
-<li>None</li>
-</ul>
-</div>
-</div>
-<div class="collapse">
-<input type="checkbox" id="collapse-section5" aria-hidden="true">
-<label for="collapse-section5" checked aria-hidden="true"><strong>V1.3.1
-/ 20-November-2025</strong></label>
-<div>
-<h2 id="main-changes-2">Main Changes</h2>
-<ul>
-<li>Correction to the I2C and SMBUS HAL drivers</li>
-</ul>
-<h2 id="contents-2">Contents</h2>
-<h3 id="hal-drivers-updates-2"><strong>HAL Drivers</strong> updates</h3>
-<ul>
-<li><strong>HAL I2C</strong> driver
-<ul>
-<li>Pin definitions for SMBUS and Fast Mode Plus now split across the
-two I2C IP instances (I2C1 and I2C2).</li>
-</ul></li>
-</ul>
 <h2 id="backward-compatibility-2">Backward compatibility</h2>
 <ul>
-<li>Not applicable</li>
+<li>Yes</li>
 </ul>
 <h2 id="known-limitations-2">Known Limitations</h2>
 <ul>
@@ -256,18 +348,54 @@ two I2C IP instances (I2C1 and I2C2).</li>
 </div>
 </div>
 <div class="collapse">
+<input type="checkbox" id="collapse-section5" aria-hidden="true">
+<label for="collapse-section5" checked aria-hidden="true"><strong>V1.3.1
+/ 20-November-2025</strong></label>
+<div>
+<h2 id="main-changes-3">Main Changes</h2>
+<ul>
+<li>Correction to the I2C and SMBUS HAL drivers</li>
+</ul>
+<h2 id="contents-3">Contents</h2>
+<h3 id="hal-drivers-updates-3"><strong>HAL Drivers</strong> updates</h3>
+<ul>
+<li><strong>HAL I2C</strong> driver
+<ul>
+<li>Pin definitions for SMBUS and Fast Mode Plus now split across the
+two I2C IP instances (I2C1 and I2C2).</li>
+</ul></li>
+</ul>
+<h2 id="backward-compatibility-3">Backward compatibility</h2>
+<ul>
+<li>Not applicable</li>
+</ul>
+<h2 id="known-limitations-3">Known Limitations</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="dependencies-3">Dependencies</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="notes-3">Notes</h2>
+<ul>
+<li>None</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
 <input type="checkbox" id="collapse-section4" aria-hidden="true">
 <label for="collapse-section4" checked aria-hidden="true"><strong>V1.3.0
 / 29-October-2025</strong></label>
 <div>
-<h2 id="main-changes-3">Main Changes</h2>
+<h2 id="main-changes-4">Main Changes</h2>
 <ul>
 <li>HAL and LL drivers updates to support STM32WL3Rx product line.</li>
 <li>Corrections/enhancements to the following HAL drivers: ADC, MRSUBG,
 RCC, MRSUBG Timer, GPIO, UART, USART, LCSC, PWR.</li>
 </ul>
-<h2 id="contents-3">Contents</h2>
-<h3 id="hal-drivers-updates-3"><strong>HAL Drivers</strong> updates</h3>
+<h2 id="contents-4">Contents</h2>
+<h3 id="hal-drivers-updates-4"><strong>HAL Drivers</strong> updates</h3>
 <ul>
 <li><strong>HAL ADC</strong> driver
 <ul>
@@ -336,19 +464,19 @@ USART_PRESCALER_TAB array</li>
 <li>NUCLEO-WL3RKB1 board</li>
 <li>NUCLEO-WL3RKB2 board</li>
 </ul>
-<h2 id="backward-compatibility-3">Backward compatibility</h2>
+<h2 id="backward-compatibility-4">Backward compatibility</h2>
 <ul>
 <li>Not applicable</li>
 </ul>
-<h2 id="known-limitations-3">Known Limitations</h2>
+<h2 id="known-limitations-4">Known Limitations</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="dependencies-3">Dependencies</h2>
+<h2 id="dependencies-4">Dependencies</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="notes-3">Notes</h2>
+<h2 id="notes-4">Notes</h2>
 <ul>
 <li>None</li>
 </ul>
@@ -359,12 +487,12 @@ USART_PRESCALER_TAB array</li>
 <label for="collapse-section3" checked aria-hidden="true"><strong>V1.2.0
 / 04-June-2025</strong></label>
 <div>
-<h2 id="main-changes-4">Main Changes</h2>
+<h2 id="main-changes-5">Main Changes</h2>
 <h3 id="release-of-hal-and-ll-drivers-for-stm32wl3x-devices">Release of
 <strong>HAL and LL drivers</strong> for <strong>STM32WL3x</strong>
 devices</h3>
-<h2 id="contents-4">Contents</h2>
-<h3 id="hal-drivers-updates-4"><strong>HAL Drivers</strong> updates</h3>
+<h2 id="contents-5">Contents</h2>
+<h3 id="hal-drivers-updates-5"><strong>HAL Drivers</strong> updates</h3>
 <ul>
 <li><strong>HAL MRSUBG</strong> driver
 <ul>
@@ -411,19 +539,19 @@ boards</h2>
 <li>NUCLEO-WL33CC1 board</li>
 <li>NUCLEO-WL33CC2 board</li>
 </ul>
-<h2 id="backward-compatibility-4">Backward compatibility</h2>
+<h2 id="backward-compatibility-5">Backward compatibility</h2>
 <ul>
 <li>Not applicable</li>
 </ul>
-<h2 id="known-limitations-4">Known Limitations</h2>
+<h2 id="known-limitations-5">Known Limitations</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="dependencies-4">Dependencies</h2>
+<h2 id="dependencies-5">Dependencies</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="notes-4">Notes</h2>
+<h2 id="notes-5">Notes</h2>
 <ul>
 <li>None</li>
 </ul>
@@ -434,7 +562,7 @@ boards</h2>
 <label for="collapse-section2" checked aria-hidden="true"><strong>V1.1.0
 / 5-February-2025</strong></label>
 <div>
-<h2 id="main-changes-5">Main Changes</h2>
+<h2 id="main-changes-6">Main Changes</h2>
 <h3 id="release-of-hal-and-ll-drivers-for-stm32wl3x-devices-1">Release
 of <strong>HAL and LL drivers</strong> for <strong>STM32WL3x</strong>
 devices</h3>
@@ -497,7 +625,7 @@ USART_PRESCALER_TAB array</li>
 </ul></li>
 </ul>
 <p>Check the code documentation for further details.</p>
-<h2 id="contents-5">Contents</h2>
+<h2 id="contents-6">Contents</h2>
 <ul>
 <li>Release of HAL/LL drivers
 <ul>
@@ -514,19 +642,19 @@ boards</h2>
 <li>NUCLEO-WL33CC1 board</li>
 <li>NUCLEO-WL33CC2 board</li>
 </ul>
-<h2 id="backward-compatibility-5">Backward compatibility</h2>
+<h2 id="backward-compatibility-6">Backward compatibility</h2>
 <ul>
 <li>Not applicable</li>
 </ul>
-<h2 id="known-limitations-5">Known Limitations</h2>
+<h2 id="known-limitations-6">Known Limitations</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="dependencies-5">Dependencies</h2>
+<h2 id="dependencies-6">Dependencies</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="notes-5">Notes</h2>
+<h2 id="notes-6">Notes</h2>
 <ul>
 <li>None</li>
 </ul>
@@ -537,12 +665,12 @@ boards</h2>
 <label for="collapse-section1" checked aria-hidden="true"><strong>V1.0.0
 / 30-October-2024</strong></label>
 <div>
-<h2 id="main-changes-6">Main Changes</h2>
+<h2 id="main-changes-7">Main Changes</h2>
 <h3
 id="first-official-release-of-hal-and-ll-drivers-for-stm32wl33-devices">First
 Official Release of <strong>HAL and LL drivers</strong> for
 <strong>STM32WL33</strong> devices</h3>
-<h2 id="contents-6">Contents</h2>
+<h2 id="contents-7">Contents</h2>
 <ul>
 <li>First Official Release of HAL/LL drivers
 <ul>
@@ -558,19 +686,19 @@ boards</h2>
 <ul>
 <li>NUCLEO-WL33CC board</li>
 </ul>
-<h2 id="backward-compatibility-6">Backward compatibility</h2>
+<h2 id="backward-compatibility-7">Backward compatibility</h2>
 <ul>
 <li>Not applicable</li>
 </ul>
-<h2 id="known-limitations-6">Known Limitations</h2>
+<h2 id="known-limitations-7">Known Limitations</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="dependencies-6">Dependencies</h2>
+<h2 id="dependencies-7">Dependencies</h2>
 <ul>
 <li>None</li>
 </ul>
-<h2 id="notes-6">Notes</h2>
+<h2 id="notes-7">Notes</h2>
 <ul>
 <li>None</li>
 </ul>

@@ -368,7 +368,7 @@ ErrorStatus LL_I2S_DeInit(const SPI_TypeDef *SPIx)
   *          - SUCCESS: SPI registers are Initialized
   *          - ERROR: SPI registers are not Initialized
   */
-ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, LL_I2S_InitTypeDef *I2S_InitStruct)
+ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx,const LL_I2S_InitTypeDef *I2S_InitStruct)
 {
   uint32_t i2sdiv = 2U;
   uint32_t i2sodd = 0U;
@@ -436,7 +436,7 @@ ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, LL_I2S_InitTypeDef *I2S_InitStruct)
         if(LL_RCC_DIRECT_HSE_IsEnabled())
         {
           /* HSE_VALUE DIV2 */
-          sourceclock = 24000000;
+          sourceclock = HSE_VALUE/2;
         }
         else
         {

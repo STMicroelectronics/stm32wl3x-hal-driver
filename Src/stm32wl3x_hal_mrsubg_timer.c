@@ -278,9 +278,11 @@ void HAL_MRSUBG_TIMER_Init(MRSUBG_TIMER_InitTypeDef *MRSUBG_TIMER_InitStruct)
 }
 
 /**
-  * @brief Timer module state machine. Check and schedule the calibration.
-  * Check expired timers and execute user callback.
-  * It must be placed inside the infinite loop.
+  * @brief  Service the virtual timer state machine.
+  * @note   Call this function regularly from the main loop context.
+  *         The routine serves expired virtual timers, executes their callbacks,
+  *         refreshes the next hardware wakeup deadline, and finalizes slow-clock calibration
+  *         when a periodic calibration cycle completes.
   * @retval None
   */
 void HAL_MRSUBG_TIMER_Tick(void)
@@ -337,8 +339,10 @@ void HAL_MRSUBG_TIMER_Tick(void)
 }
 
 /**
-  * @brief  Returns the admitted low power mode according to the next timer activity.
-  * @return Low Power mode
+  * @brief  Evaluate the deepest low-power mode currently allowed by the timer service.
+  * @note   The decision takes into account pending radio wakeup activity, queued virtual timers,
+  *         and the configured high-speed clock startup margin.
+  * @return Power-save level that can be entered without missing the next scheduled timer event.
   */
 PowerSaveLevels HAL_MRSUBG_TIMER_PowerSaveLevelCheck(void)
 {
@@ -418,10 +422,11 @@ PowerSaveLevels HAL_MRSUBG_TIMER_PowerSaveLevelCheck(void)
 /* ---------------------- RADIO Activity APIs --------------------------------*/
 
 /**
-  * @brief  Return the status of the RFIP Wakeup timer and the last value programmed in the register.
-  * @param  time: return the RFIP Wakeup time.
-  * @retval 0 if no timer has been programmed.
-  * @retval 1 if RFIP Wakeup Timer has been programmed.
+  * @brief  Report the current radio wakeup timer status.
+  * @param  time Pointer to the variable that receives the programmed RFIP wakeup time.
+  *         The function stores 0 in this variable when no radio wakeup timer is active.
+  * @retval 0 No RFIP wakeup timer is currently programmed.
+  * @retval 1 An RFIP wakeup timer is currently programmed.
   */
 uint8_t HAL_MRSUBG_TIMER_GetRadioTimerValue(uint32_t *time)
 {
@@ -440,9 +445,10 @@ uint8_t HAL_MRSUBG_TIMER_GetRadioTimerValue(uint32_t *time)
 /* ----------------------- Radio Timer time unit APIs ------------------------*/
 
 /**
-  * @brief  Translates time in microseconds into machine time units.
-  * @param  time: Microseconds to be converted in MTU
-  * @return Machine time value
+  * @brief  Convert a duration from microseconds to machine time units.
+  * @param  time Duration expressed in microseconds.
+  * @return Equivalent duration expressed in machine time units, based on the current
+  *         interpolated timer frequency.
   */
 uint64_t HAL_MRSUBG_TIMER_UsToMachinetime(uint64_t time)
 {
@@ -450,9 +456,10 @@ uint64_t HAL_MRSUBG_TIMER_UsToMachinetime(uint64_t time)
 }
 
 /**
-  * @brief  Translates time machine time in microseconds.
-  * @param  time: Machine time to be converted in microseconds
-  * @return Time value in microseconds
+  * @brief  Convert a duration from machine time units to microseconds.
+  * @param  time Duration expressed in machine time units.
+  * @return Equivalent duration expressed in microseconds, based on the current
+  *         interpolated timer frequency.
   */
 uint64_t HAL_MRSUBG_TIMER_MachinetimeToUs(uint64_t time)
 {
@@ -507,8 +514,10 @@ uint32_t HAL_MRSUBG_TIMER_StartVirtualTimerMs(VTIMER_HandleType_t *timerHandle, 
 }
 
 /**
-  * @brief  Stops the one-shot virtual timer specified if found
-  * @param  timerHandle: The virtual timer
+  * @brief  Stop a virtual timer.
+  * @param  timerHandle Pointer to the virtual timer handle to stop.
+  * @note   If the handle is present in the queue, the routine removes it and refreshes the
+  *         next hardware wakeup deadline when required.
   * @retval None
   */
 void HAL_MRSUBG_TIMER_StopVirtualTimer(VTIMER_HandleType_t *timerHandle)
@@ -556,8 +565,8 @@ void HAL_MRSUBG_TIMER_TimeoutCallback(void)
 }
 
 /**
-  * @brief  Returns the number of timers in the queue.
-  * @return number of timers in the queue.
+  * @brief  Count the virtual timers currently linked in the queue.
+  * @return Number of timer handles present in the internal queue.
   */
 uint32_t HAL_MRSUBG_TIMER_GetPendingTimers(void)
 {
@@ -920,7 +929,9 @@ static VTIMER_HandleType_t *_check_callbacks(VTIMER_HandleType_t *rootNode, VTIM
 }
 
 /**
-  * @brief MRSUBG TIMER MSP Init
+  * @brief  Initialize the low-level resources required by the MRSUBG timer service.
+  * @note   Override this weak function in user code to configure clocks, interrupts,
+  *         or board-specific resources needed by the wakeup timer path.
   * @retval None
   */
 __weak void HAL_MRSUBG_TIMER_MspInit(void)
@@ -931,7 +942,9 @@ __weak void HAL_MRSUBG_TIMER_MspInit(void)
 }
 
 /**
-  * @brief MRSUBG TIMER MSP DeInit
+  * @brief  De-initialize the low-level resources used by the MRSUBG timer service.
+  * @note   Override this weak function in user code to release board-specific resources
+  *         configured by HAL_MRSUBG_TIMER_MspInit().
   * @retval None
   */
 __weak void HAL_MRSUBG_TIMER_MspDeInit(void)
@@ -942,6 +955,12 @@ __weak void HAL_MRSUBG_TIMER_MspDeInit(void)
     */
 }
 
+/**
+  * @brief  Notify user code that the CPU wakeup timer interrupt occurred.
+  * @note   Override this weak function in user code to execute application-specific
+  *         processing when the CPU wakeup interrupt is received.
+  * @retval None
+  */
 __weak void HAL_MRSUBG_TIMER_CPU_WKUP_Callback(void)
 {
   /* NOTE : This function should not be modified, when the callback is needed,
@@ -949,6 +968,11 @@ __weak void HAL_MRSUBG_TIMER_CPU_WKUP_Callback(void)
     */
 }
 
+/**
+  * @brief  Handle the CPU wakeup timer interrupt.
+  * @note   The default handler forwards the event to HAL_MRSUBG_TIMER_CPU_WKUP_Callback().
+  * @retval None
+  */
 void HAL_MRSUBG_TIMER_CPU_WKUP_IRQHandler(void)
 {
   HAL_MRSUBG_TIMER_CPU_WKUP_Callback();

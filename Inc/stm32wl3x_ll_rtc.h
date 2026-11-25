@@ -549,7 +549,7 @@ typedef struct
   * @param  __VALUE__ BCD value to be converted
   * @retval Converted byte
   */
-#define __LL_RTC_CONVERT_BCD2BIN(__VALUE__) (uint8_t)(((uint8_t)((__VALUE__) & (uint8_t)0xF0U) >> (uint8_t)0x4U) * 10U + ((__VALUE__) & (uint8_t)0x0FU))
+#define __LL_RTC_CONVERT_BCD2BIN(__VALUE__) (uint8_t)((((uint8_t)((__VALUE__) & (uint8_t)0xF0U) >> (uint8_t)0x4U) * 10U) + ((__VALUE__) & (uint8_t)0x0FU))
 
 /**
   * @}
@@ -1204,7 +1204,6 @@ __STATIC_INLINE uint32_t LL_RTC_TIME_GetSubSecond(RTC_TypeDef *RTCx)
   * @brief  Synchronize to a remote clock with a high degree of precision.
   * @note   This operation effectively subtracts from (delays) or advance the clock of a fraction of a second.
   * @note   Bit is write-protected. @ref LL_RTC_DisableWriteProtection function should be called before.
-  * @note   When REFCKON is set, firmware must not write to Shift control register.
   * @rmtoll SHIFTR       ADD1S         LL_RTC_TIME_Synchronize\n
   *         SHIFTR       SUBFS         LL_RTC_TIME_Synchronize
   * @param  RTCx RTC Instance
